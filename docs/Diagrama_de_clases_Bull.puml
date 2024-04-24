@@ -1,0 +1,81 @@
+@startuml
+class Account {
+    - id_account: int
+    - balance: float
+    - is_admin: bool
+    - dni: int
+    - username: str
+    - name: str
+    - surname: str
+    - born_day: dates
+    - phone_number: str
+    - address: str
+    - email: str
+    - password: str
+    --
+    + get_data_account ()   
+    + set_data_account ()
+    + get_balance ()
+    + make_balance ()
+    + swap ()
+}
+
+note right of Account::get_data_account
+This method returns the data of a user
+end note
+
+class Admin {
+    <<extend>>User
+    +cvu: int
+    --
+    +upload_money ()
+    +get_other_account_info (DNI)
+}
+
+
+class Register{
+    -id_register: int
+    -date: date
+    -motion: str
+    -amount_coin_1: float
+    -amount_coin_2: float
+    -id_coin_1: int
+    -id_coin_2: int
+    --
+    +equate_coins ()
+    +get_motion () 
+}
+
+Class Coin {
+    -id_coin: int
+    -name: str
+    -abbreviation: str
+    -price: float
+    -variation: float
+    --
+    +get_price ()
+    +set_price ()
+    +get_variation ()
+    +set_variation ()
+}
+note right  of Coin::get_price
+Returns the price in USD.
+end note
+note  right of Coin::get_variation
+Returns its variation from x time.
+end note
+
+Class Wallet{
+    -Id_wallet: int
+    -balance: float
+}
+
+Account <|--  Admin
+
+Account "1"*-- "1" Register
+
+Coin "1" *-- "1" Register
+
+Account "1"*-- "1" Wallet
+
+Wallet *-- Coin
