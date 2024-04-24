@@ -1,0 +1,65 @@
+@startuml Bull_E-R
+
+skinparam linetype ortho
+
+entity Account {
+    * id_account <<generated>>
+    --
+    * username
+    * password
+    * name 
+    * surname
+    * dni
+    * email 
+    * phone
+    * address
+    * birthdate
+    * total_balance
+    * isAdmin
+    notes:
+    total_balance is measured in USD.
+}
+
+entity Wallet {
+    * id_wallet <<generated>>
+    --
+    * balance 
+    * id_owner_account <<FK>>
+    * id_wallet_coin <<FK>>
+}
+
+entity Coin{
+    * id_coin <<generated>>
+    --
+    * coin_name
+    * abbreviation
+    * price 
+    * time_variation 
+    notes: 
+    price is measured in USD
+    time variation could be daily, weekly or annual
+}
+
+entity Register{
+    * id_register <<generated>>
+    --
+    * amount1
+    * amount2
+    * operation_date 
+    * id_wallet1 <<FK>>
+    * id_wallet2 <<FK>>
+    ' amount2 es un atributo derivado. 
+    ' Obtenido por una equivalencia de precios (a la fecha) de moneda que trabaja la wallet 1 a la moneda de la wallet 2
+}
+
+' Relaciones
+
+Account ||--|{ Wallet
+Coin ||--|{ Wallet
+Register }|--|| Wallet
+
+' Register }|--|| Account
+' Register }|--|| Coin
+' Una billetera trabaja con una sola moneda. Pero una moneda está en varias billeteras (de varios usuarios). (1 moneda a N billeteras)
+' Una billetera tiene varios registros de operaciones. Un registro de movimientos involucra siempre entre dos billeteras (1 billetera a N registros, 1 registro a 2 billeteras). 
+@enduml
