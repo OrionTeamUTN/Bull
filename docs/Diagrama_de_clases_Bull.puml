@@ -1,14 +1,14 @@
 @startuml
 class Account {
     - id_account: int
-    - balance: float
+    - total_balance: float
     - is_admin: bool
     - dni: int
     - username: str
     - name: str
     - surname: str
-    - born_day: dates
-    - phone_number: str
+    - birthdate: dates
+    - phone: str
     - address: str
     - email: str
     - password: str
@@ -35,12 +35,12 @@ class Admin {
 
 class Register{
     -id_register: int
-    -date: date
+    -operation_date: date
     -motion: str
-    -amount_coin_1: float
-    -amount_coin_2: float
-    -id_coin_1: int
-    -id_coin_2: int
+    -amount_1: float
+    -amount_2: float
+    -id_wallet_1: int
+    -id_wallet_2: int
     --
     +equate_coins ()
     +get_motion () 
@@ -48,10 +48,10 @@ class Register{
 
 Class Coin {
     -id_coin: int
-    -name: str
+    -coin_name: str
     -abbreviation: str
     -price: float
-    -variation: float
+    -time_variation: float
     --
     +get_price ()
     +set_price ()
@@ -66,15 +66,17 @@ Returns its variation from x time.
 end note
 
 Class Wallet{
-    -Id_wallet: int
+    -id_wallet: int
     -balance: float
+    -id_owner_account: int
+    -id_wallet_coin: int
 }
 
 Account <|--  Admin
 
-Account "1"*-- "1" Register
 
-Coin "1" *-- "1" Register
+
+Wallet "1" *-- "1" Register
 
 Account "1"*-- "1" Wallet
 
