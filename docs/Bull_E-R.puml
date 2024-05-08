@@ -14,10 +14,7 @@ entity Account {
     * phone
     * address
     * birthdate
-    * total_balance
     * isAdmin
-    notes:
-    total_balance is measured in USD.
 }
 
 entity Wallet {
@@ -33,15 +30,10 @@ entity Coin{
     --
     * coin_name
     * abbreviation
-    * price 
-    * time_variation 
-    notes: 
-    price is measured in USD
-    time variation could be daily, weekly or annual
 }
 
-entity Register{
-    * id_register <<generated>>
+entity Swap{
+    * id_swap <<generated>>
     --
     * amount1
     * amount2
@@ -56,7 +48,7 @@ entity Register{
 
 Account ||--|{ Wallet
 Coin ||--|{ Wallet
-Register }|--|| Wallet
+Swap }|--|| Wallet
 
 ' Register }|--|| Account
 ' Register }|--|| Coin
