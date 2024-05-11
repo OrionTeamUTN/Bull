@@ -1,7 +1,6 @@
 @startuml
 class Account {
     - id_account: int
-    - total_balance: float
     - is_admin: bool
     - dni: int
     - username: str
@@ -15,7 +14,6 @@ class Account {
     --
     + get_data_account ()   
     + set_data_account ()
-    + get_balance ()
     + make_balance ()
 }
 
@@ -35,14 +33,14 @@ class Admin {
 class Swap{
     -id_swap: int
     -operation_date: date
-    -motion: str
+    -swap: str
     -amount_1: float
     -amount_2: float
     -id_wallet_1: int
     -id_wallet_2: int
     --
     +equate_coins ()
-    +get_motion () 
+    +get_swap () 
 }
 
 Class Coin {
@@ -50,7 +48,7 @@ Class Coin {
     -coin_name: str
     -abbreviation: str
     --
-    +api_fucntion () 
+    +api_function () 
 }
 
 note right  of Coin::api_function
