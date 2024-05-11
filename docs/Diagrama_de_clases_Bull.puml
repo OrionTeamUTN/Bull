@@ -17,7 +17,6 @@ class Account {
     + set_data_account ()
     + get_balance ()
     + make_balance ()
-    + swap ()
 }
 
 note right of Account::get_data_account
@@ -33,8 +32,8 @@ class Admin {
 }
 
 
-class Register{
-    -id_register: int
+class Swap{
+    -id_swap: int
     -operation_date: date
     -motion: str
     -amount_1: float
@@ -50,20 +49,14 @@ Class Coin {
     -id_coin: int
     -coin_name: str
     -abbreviation: str
-    -price: float
-    -time_variation: float
     --
-    +get_price ()
-    +set_price ()
-    +get_variation ()
-    +set_variation ()
+    +api_fucntion () 
 }
-note right  of Coin::get_price
-Returns the price in USD.
+
+note right  of Coin::api_function
+Returns the Coin
 end note
-note  right of Coin::get_variation
-Returns its variation from x time.
-end note
+
 
 Class Wallet{
     -id_wallet: int
@@ -76,7 +69,7 @@ Account <|--  Admin
 
 
 
-Wallet "1" *-- "1" Register
+Wallet "1" *-- "1" Swap
 
 Account "1"*-- "1" Wallet
 
