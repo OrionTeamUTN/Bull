@@ -34,10 +34,10 @@ class Swap{
     -id_swap: int
     -operation_date: date
     -swap: str
-    -amount_1: float
-    -amount_2: float
-    -id_wallet_1: int
-    -id_wallet_2: int
+    -amount_in: float
+    -amount_out: float
+    -id_wallet_in: int
+    -id_wallet_out: int
     --
     +equate_coins ()
     +get_swap () 
