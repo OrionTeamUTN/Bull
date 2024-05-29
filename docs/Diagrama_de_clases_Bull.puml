@@ -15,19 +15,17 @@ class Account {
     + get_data_account ()   
     + set_data_account ()
     + make_balance ()
+    + upload_money ()
+    + get_other_account_info (DNI)
+}
+class Model {
+ clase de SQLAlchemy
 }
 
 note right of Account::get_data_account
 This method returns the data of a user
 end note
 
-class Admin {
-    <<extend>>User
-    +cvu: int
-    --
-    +upload_money ()
-    +get_other_account_info (DNI)
-}
 
 
 class Swap{
@@ -63,7 +61,7 @@ Class Wallet{
     -id_wallet_coin: int
 }
 
-Account <|--  Admin
+
 
 
 
@@ -72,3 +70,8 @@ Wallet "1" *-- "1" Swap
 Account "1"*-- "1" Wallet
 
 Wallet *-- Coin
+
+Model <|-- Swap
+Model <|-- Wallet
+Model <|-- Account 
+Model <|-- Coin
