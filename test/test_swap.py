@@ -5,21 +5,20 @@ from app import create_app
 from app.models import Swap
 from datetime import datetime
 
-
-# Datos de prueba
-id_swap = 1
-operation_date = datetime.utcnow()
-amount_in = 400
-amount_out = 60
-id_wallet_in = 1
-id_wallet_out = 2
-
-class AppTestCase(unittest.TestCase):
+class SwapTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app()
         self.app_context = self.app.app_context()
         self.app_context.push()
+    
+        # Datos de prueba
+        self.ID_SWAP = 1
+        self.OPERATION_DATE = datetime.utcnow()
+        self.AMOUNT_IN = 400
+        self.AMOUNT_OUT = 60
+        self.ID_WALLET_IN = 1
+        self.ID_WALLET_OUT = 2
 
     def tearDown(self):
         self.app_context.pop()
@@ -29,18 +28,18 @@ class AppTestCase(unittest.TestCase):
 
     def test_swap(self):
         swap = Swap()
-        swap.id_swap = id_swap
-        swap.operation_date = operation_date
-        swap.amount_in = amount_in
-        swap.amount_out = amount_out
-        swap.id_wallet_in = id_wallet_in
-        swap.id_wallet_out = id_wallet_out
-        self.assertTrue(swap.id_swap, id_swap)
-        self.assertTrue(swap.operation_date, operation_date)
-        self.assertTrue(swap.amount_in, amount_in)
-        self.assertTrue(swap.amount_out, amount_out)
-        self.assertTrue(swap.id_wallet_in, id_wallet_in)
-        self.assertTrue(swap.id_wallet_out, id_wallet_out)
+        swap.id_swap = self.ID_SWAP
+        swap.operation_date = self.OPERATION_DATE
+        swap.amount_in = self.AMOUNT_IN
+        swap.amount_out = self.AMOUNT_OUT
+        swap.id_wallet_in = self.ID_WALLET_IN
+        swap.id_wallet_out = self.ID_WALLET_OUT
+        self.assertTrue(swap.id_swap, self.ID_SWAP)
+        self.assertTrue(swap.operation_date, self.OPERATION_DATE)
+        self.assertTrue(swap.amount_in, self.AMOUNT_IN)
+        self.assertTrue(swap.amount_out, self.AMOUNT_OUT)
+        self.assertTrue(swap.id_wallet_in, self.ID_WALLET_IN)
+        self.assertTrue(swap.id_wallet_out, self.ID_WALLET_OUT)
 
 if __name__ == "__main__":
     unittest.main()
