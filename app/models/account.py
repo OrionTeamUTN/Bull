@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from app import db
-from datetime import datetime
-@dataclass(init=False, repr=True, eq=True)
+@dataclass
 class Account( db.Model ):
     __tablename__ = 'accounts'
     id_account = db.Column('id_account',db.Integer, primary_key=True, autoincrement= True)
@@ -14,5 +13,4 @@ class Account( db.Model ):
     address = db.Column ('address', db.String(45), nullable=False)
     dni = db.Column ('dni', db.Integer(), nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
-     
-    #wallet = db.relationship("Account", back_populates="wallets")
+    wallet = db.relationship("Wallet", back_populates="account", uselist=False)
