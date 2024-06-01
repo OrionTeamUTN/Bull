@@ -3,7 +3,7 @@ from app import db
 from datetime import datetime
 @dataclass(init=False, repr=True, eq=True)
 class Account( db.Model ):
-    __tablename__ = 'account'
+    __tablename__ = 'accounts'
     id_account = db.Column('id_account',db.Integer, primary_key=True, autoincrement= True)
     username = db.Column('username', db.String(45), nullable=False)
     password = db.Column('password', db.String, nullable=False)
@@ -15,4 +15,4 @@ class Account( db.Model ):
     dni = db.Column ('dni', db.Integer(), nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
      
-    #wallet = db.relationship("Account", back_populates="wallet")
+    #wallet = db.relationship("Account", back_populates="wallets")
