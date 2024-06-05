@@ -6,7 +6,7 @@ from app.models import Wallet
 from datetime import datetime
 from app.models import Account
 
-class SwapTestCase(unittest.TestCase):
+class WalletTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app()
