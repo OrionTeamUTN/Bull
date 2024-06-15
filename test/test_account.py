@@ -7,7 +7,7 @@ from app.services.account_services import accountservice
 
 account_service = accountservice()
 
-class AppTestCase(unittest.TestCase):
+class AccountTestCase(unittest.TestCase):
 
     def setUp(self):
         #definimos los valores de prueba los crea y los guarda en la base de datos, este metodo se llama para cada prueba que se ejecute
