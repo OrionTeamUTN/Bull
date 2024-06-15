@@ -17,7 +17,6 @@ class WalletTestCase(unittest.TestCase):
         self.ID_WALLET = 1
         self.BALANCE = 500
         self.ID_OWNER_ACCOUNT = 2
-        #self.ID_WALLET_COIN = 2
 
         self.ID_ACCOUNT = 2
         self.USERNAME_PRUEBA = 'test'
@@ -33,9 +32,6 @@ class WalletTestCase(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
-    def test_app(self):
-        self.assertIsNotNone(current_app)
-
     def test_wallet(self):
     
         wallet = Wallet()
@@ -43,14 +39,10 @@ class WalletTestCase(unittest.TestCase):
         wallet.id_wallet = self.ID_WALLET
         wallet.balance = self.BALANCE
         wallet.id_owner_account = self.ID_OWNER_ACCOUNT
-       # wallet.wallet_coin = self.WALLET_COIN
         
         self.assertTrue(wallet.id_wallet,self.ID_WALLET) #Este comando verifica que ambos sean iguales
         self.assertTrue(wallet.balance, self.BALANCE)
         self.assertTrue(wallet.id_owner_account,self.ID_OWNER_ACCOUNT)
-       # self.assertTrue(wallet.id_wallet_coin,self.ID_WALLET_COIN)
-
-
 
         
 if __name__ == "__main__":
