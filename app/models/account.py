@@ -13,4 +13,13 @@ class Account( db.Model ):
     address = db.Column ('address', db.String(45), nullable=False)
     dni = db.Column ('dni', db.Integer(), nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
-    wallet = db.relationship("Wallet", back_populates="account", uselist=False)
+    wallets = db.relationship("Wallet", back_populates="accounts", uselist=False)
+    
+
+    def add_role(self, wallet):
+        if wallet not in self.wallets:
+            self.wallets.append(wallet)
+    
+    def remove_role(self, wallet):
+        if wallet in self.wallets:
+            self.wallets.remove(wallet)
