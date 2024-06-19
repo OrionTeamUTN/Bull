@@ -20,22 +20,19 @@ class SwapRepository:
         except: # Si no existe, devuelve none
             return None
 
-    # Busca swaps relacionados con una wallet en particular, por su id, ya sea que envió o recibió dinero.
-    def filter_by_wallet_id(self, id_wallet: int):
-        l_swaps1 = db.session.query(Swap).filter_by(id_wallet_in=id_wallet).all() # busco en las que figure que envie
-        l_swaps2 = db.session.query(Swap).filter_by(id_wallet_out=id_wallet).all() # busco en las que figure que recibe
-        l_swaps = l_swaps1 + l_swaps2 # combino ambas listas
-        if len(l_swaps) > 0: 
+    # Buscar por una wallet en particular, por su id, que haya enviado swaps
+    def filter_by_wallet_send(self, id_wallet: int):
+        l_swaps = db.session.query(Swap).filter_by(id_wallet_send=id_wallet).all()
+        if len(l_swaps)>0:
             return l_swaps
         else:
             return None
-    
-    # Busca por fecha de operación
-    def find_by_op_date(self, operation_date: datetime):
-        swaps = db.session.query(Swap).filter_by(operation_date=operation_date).all()
-        return swaps
-    
-    # Busca por fecha de operación y billetera en particular
-    def find_by_op_date_and_wallet(self, operation_date: datetime, id_wallet: int):
-        swaps_by_opdate = self.find_by_op_date(operation_date)
-        pass
+
+    # Filtra por una wallet que haya recibido swaps
+    def filter_by_wallet_recv(self, id_wallet: int):
+        l_swaps = db.session.query(Swap).filter_by(id_wallet_recv=id_wallet).all()
+        if len(l_swaps)>0:
+            return l_swaps
+        else:
+            return None
+

@@ -7,5 +7,4 @@ class Coin(db.Model):
     id_coin = db.Column('id_coin', db.Integer, primary_key=True, autoincrement= True)
     coin_name = db.Column('coin_name', db.String(50))
     coin_abbreviation = db.Column('coin_abbreviation', db.String(5))
-    id_coin_wallet = db.Column('id_coin_wallet', db.ForeignKey('wallets.id_wallet'), nullable=False)
-    wallet = db.relationship('Wallet', back_populates='coin' )
+    wallets = db.relationship('Wallet', back_populates='coin' )

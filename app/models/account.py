@@ -13,7 +13,7 @@ class Account( db.Model ):
     address = db.Column ('address', db.String(45), nullable=False)
     dni = db.Column ('dni', db.Integer(), nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
-    wallets = db.relationship("Wallet", back_populates="accounts", uselist=False)
+    wallets = db.relationship("Wallet", back_populates="account", uselist=False)
     
 
     def add_role(self, wallet):
