@@ -1,14 +1,37 @@
 from app import db
 from app.repositories.swap_repository import SwapRepository
+from app.services.wallet_services import walletservices
 from app.models import Swap 
 from datetime import datetime
 
 swap_repository = SwapRepository()
+wallet_service = walletservices()
+
 
 class SwapService:
 
     def save(self, swap: Swap):
+        
+        # Se verifica que existan las billeteras
+        wallet_send = wallet_service.find_by_id(swap.id_wallet_send)
+        wallet_recv = wallet_service.find_by_id(swap.id_wallet_recv)
+        if wallet_send == None:
+            print(f"No existe la billetera enviadora con id={swap.id_wallet_send}")
+            return None
+        if wallet_recv == None:
+            print(f"No existe la billetera receptora con id={swap.id_wallet_recv}")
+            return None
+
+        # Se verifica que el monto del swap no sea mayor al balance 
+        if wallet_send.balance < swap.amount_send: 
+            print(f"El monto {swap.amount_send} envíado es superior al balance {wallet_send.balance}")
+            return None 
+
+        # Si todo está ok, entonces guardamos el swap.
         swap_repository.save(swap)
+
+        # RECORDATORIO: Restar al balance a la wallet con el amount_send... ¿Pero eso hacerlo aca, o en el servicio wallet?.
+        # Requiere un update del balance de esa wallet.
 
     def get_all(self):
         return swap_repository.get_all()

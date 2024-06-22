@@ -56,7 +56,7 @@ class SwapTestCase(unittest.TestCase):
         }
 
         self.wallet2_test_data = {
-            "balance": 0,
+            "balance": 200,
             "id_owner_account": 2,
             "id_wallet_coin": 2
         }
@@ -64,10 +64,10 @@ class SwapTestCase(unittest.TestCase):
         # Datos de swap
         self.swap_test_data ={
             "operation_date": datetime.utcnow(),
-            "amount_send": 400,
+            "amount_send": 100,
             "amount_recv": 60,
-            "id_wallet_send": 1,
-            "id_wallet_recv": 2
+            "id_wallet_send": 1, # a wallet1
+            "id_wallet_recv": 2  # a wallet2
         }
 
         # Creamos la app y establecemos un contexto de aplicación (necesario para crear las tablas de la BD) <<aun debo investigar bien esto>>
@@ -90,16 +90,46 @@ class SwapTestCase(unittest.TestCase):
         self.assertTrue(swap.amount_recv, self.swap_test_data["amount_recv"])
         self.assertTrue(swap.id_wallet_send, self.swap_test_data["id_wallet_send"])
         self.assertTrue(swap.id_wallet_recv, self.swap_test_data["id_wallet_recv"])
-
+        
+        # Testeamos también los relationship, en este punto debe retornar None debido solo se crea un objeto Swap y no existen las instancias relacionadas
+        self.assertIsNone(swap.wallet_send)
+        self.assertIsNone(swap.wallet_recv)
 
     """ Test de guardar un registro de swap a la BD """
     def test_insert_swap_db(self):
-        self.__insert_data_db() # insertamos los datos de prueba a la bd
+        self.__insert_data_db() # insertamos los datos de prueba a la bd, requeridos para que un swap esté relacionado.
 
         swap1 = Swap(**self.swap_test_data)
+        # Antes de insertar a la BD, probamos las relaciones
+        self.assertIsNone(swap1.wallet_send) # Resultan None puesto que aun no se ha insertado el swap a la BD
+        self.assertIsNone(swap1.wallet_recv)
+
         swap_service.save(swap1)
+
+        # Probamos otra vez
+        self.assertIsNotNone(swap1.wallet_send)
+        self.assertIsNotNone(swap1.wallet_recv)
+        self.assertIsInstance(swap1.wallet_send, Wallet)
+        # Ahora que está insertado en la BD sí nos trae las relaciones
     
-    
+    """ Test de swap con wallet_send inexistente """
+    def test_unexisting_wallet_send(self):
+        self.__insert_data_db()
+        self.swap_test_data['id_wallet_send'] = 5
+
+        swap = Swap(**self.swap_test_data)
+        self.assertIsNone(swap_service.save(swap))
+
+    """ Test de swap con monto enviado invalido, superior al balance de la wallet """
+    def test_invalid_amount_send(self):
+        self.wallet1_test_data['balance'] = 300 
+        self.swap_test_data['amount_send'] = 350
+        self.__insert_data_db()
+
+        swap = Swap(**self.swap_test_data)
+        self.assertIsNone(swap_service.save(swap))
+
+
     """ Test de obtener una lista de todos los registros swaps """ 
     def test_get_all_swaps(self):
         self.__insert_data_db()
@@ -117,7 +147,6 @@ class SwapTestCase(unittest.TestCase):
         swap_service.save(swap3)
 
         l_swaps = swap_service.get_all()
-        #print(l_swaps)
         self.assertIsNotNone(l_swaps)
 
     
@@ -143,7 +172,7 @@ class SwapTestCase(unittest.TestCase):
 
     
     """ Test de filtrar registros de swaps por una wallet en específico """ 
-    def test_filter_by_wallet_in(self):
+    def test_filter_by_wallet(self):
         self.__insert_data_db()
         
         # Creamos otra moneda, para otra billetera
@@ -163,7 +192,7 @@ class SwapTestCase(unittest.TestCase):
         swap1 = Swap(**self.swap_test_data) 
 
         # wallet (1) envía a wallet (3)
-        self.swap_test_data["amount_send"] = 700
+        self.swap_test_data["amount_send"] = 100
         self.swap_test_data["id_wallet_recv"] = 3
         swap2 = Swap(**self.swap_test_data) 
 
