@@ -1,154 +1,102 @@
 import unittest
-from flask import current_app
-from app import create_app, db
-from app.models import Account
-from datetime import datetime
-from app.services.account_services import accountservice
+from . import BaseTestClass as base_t
+from app.services.account_services import AccountService
+from app.services.security import SecurityManager, WerkzeugSecurity
 
-account_service = accountservice()
+class AccountTestCase(base_t):
 
-class AccountTestCase(unittest.TestCase):
+    security = SecurityManager(WerkzeugSecurity())
+    acc_serv = AccountService()
 
-    def setUp(self):
-        #definimos los valores de prueba los crea y los guarda en la base de datos, este metodo se llama para cada prueba que se ejecute
-        #setUp es un metodo que incorpora unittest junto con tearDown 
-        self.USERNAME_PRUEBA = 'test'
-        self.EMAIL_PRUEBA = 'test@test.com'
-        self.PASSWORD_PRUEBA = 'test1234'
-        self.IS_ADMIN_PRUEBA = False
-        self.SURNAME_PRUEBA = 'surname'
-        self.ADDRESS_PRUEBA = 'address 1234'
-        self.PHONE_PRUEBA = '542605502105'
-        self.DNI_PRUEBA = 554872256
-        self.BIRTHDATE_PRUEBA = datetime(2001, 2, 1)
+    # Test para la función que guarda los datos para grabarlos en la DB
+    def test_save(self):
         
-        self.USERNAME_PRUEBA1 = 'tst1'
-        self.EMAIL_PRUEBA1 = 'tst@test.com1'
-        self.PASSWORD_PRUEBA1 = 'test12341'
-        self.IS_ADMIN_PRUEBA1 = True
-        self.SURNAME_PRUEBA1 = 'srname1'
-        self.ADDRESS_PRUEBA1 = 'adress 12344'
-        self.PHONE_PRUEBA1 = '54205502054'
-        self.DNI_PRUEBA1 = 554872563
-        self.BIRTHDATE_PRUEBA1 = datetime(2001, 2, 1)
-
-        self.app = create_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        db.create_all()
+        res_1 = self.acc_serv.save(self.account_2_data)
+        # Función para recorrer la instancia por cada uno de sus atributos
+        # para poder compararlos
+        for key in self.account_1_data.keys():
+            # No comparo pass porque uno esta plano y el guardado lo devuelve hasheado
+            if key != 'password':
+                self.assertEqual(self.account_2_data[key], getattr(res_1, key))
+            else:
+            # comparamos la pass de prueba contra la que esta haseada en la DB
+                self.assertTrue(self.security.check_password(res_1.password, self.account_2_data[key]))
+ 
+    # Test para la función de búsqueda de todas las cuentas
+    def test_find_by_id(self):
         
+        res_1 = self.acc_serv.find_by_id(1)
+        res_2 = self.acc_serv.find_by_id(2)
 
-    def tearDown(self):
-        #Se encaraga de borrar los valores que pasamamos anteriormente, en la base datos.
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
-
-    def test_app(self):
-        self.assertIsNotNone(current_app)
+        self.assertEqual(self.acc_1, res_1)
+        self.assertEqual(self.acc_2, res_2)
+        self.assertNotEqual(self.fake_account, res_1)
+        self.assertNotEqual(self.fake_account, res_2)
     
-    def test_account(self):
+    # Test para la función de búsqueda por dni
+    def test_find_by_dni(self):
         
-        account = self.__get_account()
+        res_1 = self.acc_serv.find_by_dni(self.account_1_data["dni"])
+        res_2 = self.acc_serv.find_by_dni(self.account_2_data["dni"])
+        res_3 = self.acc_serv.find_by_dni(55555555)
 
-        #con esto comprobamos que lso valores que se cargaron, son los mismos que pasamos.
+        self.assertEqual(self.acc_1, res_1)
+        self.assertEqual("No se encontró la cuenta.", res_3)
+        self.assertNotEqual(self.fake_account, res_2)
+     
+    # Test para la función de busqueda por username
+    def test_find_by_username(self):
         
-        self.assertEqual(account.email, self.EMAIL_PRUEBA)
-        self.assertEqual(account.username, self.USERNAME_PRUEBA)
-        self.assertEqual(account.password, self.PASSWORD_PRUEBA)
-        self.assertFalse(account.is_admin)
-        self.assertEqual(account.surname, self.SURNAME_PRUEBA)
-        self.assertEqual(account.address, self.ADDRESS_PRUEBA)
-        self.assertEqual(account.phone, self.PHONE_PRUEBA)
-        self.assertEqual(account.dni, self.DNI_PRUEBA)
-        self.assertEqual(account.birthdate, self.BIRTHDATE_PRUEBA)
+        res_1 = self.acc_serv.find_by_username(self.account_1_data["username"])
+        res_2 = self.acc_serv.find_by_username(self.account_2_data["username"])
 
-    def test_account_save(self):
-        account = self.__get_account()
-        
-        account_service.save(account)
-        
-        self.assertGreaterEqual(account.id_account, 1)
-        self.assertEqual(account.email, self.EMAIL_PRUEBA)
-        self.assertEqual(account.username, self.USERNAME_PRUEBA)
-        self.assertIsNotNone(account.password)
-        self.assertTrue(account_service.check_auth(account.dni, self.PASSWORD_PRUEBA))
-        self.assertEqual(account.surname, self.SURNAME_PRUEBA)
-        self.assertEqual(account.address, self.ADDRESS_PRUEBA)
-        self.assertEqual(account.phone, self.PHONE_PRUEBA)
-        self.assertEqual(account.dni, self.DNI_PRUEBA)
-        self.assertEqual(account.birthdate, self.BIRTHDATE_PRUEBA)
-        
-    
-    def test_account_delete(self):
-        #se encarga de borrar la cuenta
-      account = self.__get_account()
-        
-      account_service.save(account)
+        self.assertEqual(self.acc_1, res_1)
+        self.assertNotEqual(self.fake_account, res_2)
 
-      account_service.delete(account)
+    # Test para la función de buscar una segunda cuenta -- SOLO ADMIN --
+    def test_get_other_account_info(self):
         
-      self.assertIsNone(account_service.find(account))
-    
-    
-    def test_account_find(self):
-        #verifica que el metodo find funcione correctamente.
-        account = self.__get_account()
-        account_service.save(account)
-  
-        
-        account_find= account_service.find(1)
-        self.assertIsNotNone(account_find)
-        self.assertEqual(account_find.id_account, account.id_account)
-        
-    def test_get_other_account (self):
-        #verifica que le metodo para ver la informacion de otra cuenta funcione.
-        account1 = self.__get_account()
-        account = self.__get_account1()
-        account_service.save(account1)
-        account_service.save(account)
-        
-        self.assertTrue(account.is_admin)
-        
-        account_find1 = account_service.get_other_account_info(account1.dni, account.dni)
-        self.assertIsNotNone(account_find1)
-        self.assertEqual(account_find1.username, account1.username)
-        self.assertEqual(account_find1.email , account1.email)
-      
+        res_1 = self.acc_serv.get_other_account_info(self.account_2_data["dni"], self.account_1_data["dni"])
+        res_2 = self.acc_serv.get_other_account_info(self.account_1_data["dni"], self.account_2_data["dni"])
+        res_3 = self.acc_serv.get_other_account_info(55555555, self.account_1_data["dni"])
 
-    def __get_account(self):
-        data = Account()
-        data.surname=self.SURNAME_PRUEBA
-        data.address=self.ADDRESS_PRUEBA
-        data.phone=self.PHONE_PRUEBA
-        data.dni=self.DNI_PRUEBA
-        data.birthdate=self.BIRTHDATE_PRUEBA
-        
-        data.username=self.USERNAME_PRUEBA
-        data.email=self.EMAIL_PRUEBA
-        data.password=self.PASSWORD_PRUEBA  
-        data.is_admin=self.IS_ADMIN_PRUEBA
-        
+        self.assertEqual(self.acc_2, res_1)
+        self.assertEqual("Acción no permitida para cuentas no administrativas.", res_2)
+        self.assertEqual("No se encontró la cuenta.", res_3)
 
-        return data
-    def __get_account1(self):
-        data1 = Account()
-        data1.surname=self.SURNAME_PRUEBA1
-        data1.address=self.ADDRESS_PRUEBA1
-        data1.phone=self.PHONE_PRUEBA1
-        data1.dni=self.DNI_PRUEBA1
-        data1.birthdate=self.BIRTHDATE_PRUEBA1
+    # Test para la función de verificar la contraseña
+    def test_check_auth(self):
         
-        data1.username=self.USERNAME_PRUEBA1
-        data1.email=self.EMAIL_PRUEBA1
-        data1.password=self.PASSWORD_PRUEBA1  
-        data1.is_admin=self.IS_ADMIN_PRUEBA1
+        res_1 = self.acc_serv.check_auth(self.account_1_data["dni"], self.account_1_data["password"])
+        # La contraseña es incorrecta, debe devolver False
+        res_2 = self.acc_serv.check_auth(self.account_2_data["dni"], self.account_1_data["password"])
+
+        self.assertTrue(res_1)
+        self.assertFalse(res_2)
+
+    # Test para la función de actualizar
+    def test_update(self):
         
+        res_1 = self.acc_serv.update(self.fake_account, self.acc_2.id_account)
+        # Función para recorrer la instancia por cada uno de sus atributos
+        # para poder compararlos
+        for key in self.fake_account.keys():
+            if key != 'password':
+                self.assertEqual(self.fake_account[key], getattr(res_1, key))
+            else:
+            # comparamos la pass de prueba contra la que esta haseada en la DB
+                self.assertTrue(self.security.check_password(res_1.password, self.fake_account[key]))
+        # Le pasamos una cuenta inexistente para probar que arroje el error
+        res_2 = self.acc_serv.update(self.fake_account, 4)
+        self.assertEqual(res_2, "No existe la cuenta")
+        
+    # Test para la función de borrar
+    def test_delete(self):
+        res = self.acc_serv.delete(self.acc_2.id_account)
+        self.assertEqual(res, "Deleted")
+        # Le pasamos una cuenta inexistente para probar que arroje el error
+        res_2 = self.acc_serv.delete(4)
+        self.assertEqual(res_2, 'Error to try delete')
 
-        return data1
-
-    
 if __name__ == '__main__':
     unittest.main()
-
-

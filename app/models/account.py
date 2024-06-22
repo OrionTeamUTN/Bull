@@ -7,19 +7,22 @@ class Account( db.Model ):
     username = db.Column('username', db.String(45), nullable=False)
     password = db.Column('password', db.String, nullable=False)
     email = db.Column('email', db.String(100), nullable=False)
-    is_admin = db.Column('is_admin', db.Boolean, nullable=False, default = False)
-    surname =  db.Column('surname', db.String(45), nullable=False)
+    first_name =  db.Column('first_name', db.String(45), nullable=False)
+    last_name =  db.Column('last_name', db.String(45), nullable=False)
     phone = db.Column('phone', db.String(45), nullable=False)
     address = db.Column ('address', db.String(45), nullable=False)
     dni = db.Column ('dni', db.Integer(), nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
-    wallets = db.relationship("Wallet", back_populates="accounts", uselist=False)
+    is_admin = db.Column('is_admin', db.Boolean, nullable=False, default = False)
+    # Relación one-to-many: https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-many
+    # One account - many wallets
+    wallets = db.relationship("Wallet", back_populates="accounts", cascade="all, delete-orphan")
     
 
-    def add_role(self, wallet):
+    """ def add_role(self, wallet):
         if wallet not in self.wallets:
             self.wallets.append(wallet)
     
     def remove_role(self, wallet):
         if wallet in self.wallets:
-            self.wallets.remove(wallet)
+            self.wallets.remove(wallet) """
