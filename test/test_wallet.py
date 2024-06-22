@@ -1,132 +1,112 @@
 import unittest
-from flask import current_app
-from app import create_app, db
-from app.models import Coin
-from app.models import Wallet
-from app.models import Account
-from datetime import datetime
-from app.services.wallet_services import walletservices
-from app.services.account_services import accountservice
-from app.services.coin_services import coinservices 
+from . import BaseTestClass as base_t
+from app.services.wallet_services import WalletServices
 
-account_service = accountservice()
+class WalletTestCase(base_t):
 
-coin_service= coinservices()
+    wall_srvs = WalletServices()
 
-wallet_services = walletservices()
+    # Test para probar que guarda la wallet
+    def test_save(self):
+        res_1 = self.wall_srvs.save(self.acc_1.id_account, self.coin_1.id_coin)
+        res_2 = self.wall_srvs.save(self.acc_2.id_account, self.coin_2.id_coin)
+        # A las siguientes se les pasa datos inexistentes para que fallen
+        res_3 = self.wall_srvs.save(4, self.coin_2.id_coin)
+        res_4 = self.wall_srvs.save(self.acc_2.id_account, 4)
+        self.assertEqual(res_1.id_owner_account, self.acc_1.id_account)
+        self.assertEqual(res_1.id_wallet_coin, self.coin_1.id_coin)
+        self.assertEqual(res_2.id_owner_account, self.acc_2.id_account)
+        self.assertEqual(res_2.id_wallet_coin, self.coin_2.id_coin)
+        self.assertIsNone(res_3)
+        self.assertIsNone(res_4)
 
-class WalletTestCase(unittest.TestCase):
+    # Test para probar que borra una wallet
+    def test_delete(self):
+        res_1 = self.wall_srvs.delete(self.wall_2.id_wallet)
+        self.assertEqual(res_1, "Deleted")
 
-    def setUp(self):
-        self.app = create_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-    
-        # Datos de prueba
-        # Datos Billetera
-        self.ID_WALLET = 1
-        self.BALANCE = 500
-        self.ID_OWNER_ACCOUNT = 2
-        self.ID_WALLET_COIN= 1
-
-        self.ID_ACCOUNT = 2
-        self.USERNAME_PRUEBA = 'test'
-        self.EMAIL_PRUEBA = 'test@test.com'
-        self.PASSWORD_PRUEBA = 'test1234'
-        self.IS_ADMIN_PRUEBA = False
-        self.SURNAME_PRUEBA = 'surname'
-        self.ADDRESS_PRUEBA = 'address 1234'
-        self.PHONE_PRUEBA = '542605502105'
-        self.DNI_PRUEBA = 554872256
-        self.BIRTHDATE_PRUEBA = datetime(2001, 2, 1)
+    # Test para probar que actualiza el saldo de la wallet
+    def test_update(self):
+        res_1 = self.wall_srvs.update(self.wall_1.id_wallet, 500)
+        res_2 = self.wall_srvs.update(self.wall_1.id_wallet, -500)
+        res_3 = self.wall_srvs.update(4, 500)
         
-        self.ID_COIN = 1
-        self.NAME = 'bitcoin'
-        self.COIN_ABBREVATION = 'btc'
-        self.ID_COIN_WALLET = 1
-        
-        self.app = create_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        db.create_all()
-        
-       
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
+        self.assertEqual(res_1.balance, 500)
+        self.assertEqual(res_2, "Balance cannot be negative")
+        self.assertIsNone(res_3)
 
-    def test_wallet_save(self):
-        coin = self.__get_coin()
-        coin_service.save(coin)
-        self.assertGreaterEqual(coin.id_coin, 1)
-        self.assertEqual(coin.coin_abbreviation, self.COIN_ABBREVATION)
-        
-        
-        account = self.__get_account()
-        
-        account_service.save(account)
-        
-        self.assertGreaterEqual(account.id_account, 2)
-        self.assertEqual(account.email, self.EMAIL_PRUEBA)
-        self.assertEqual(account.username, self.USERNAME_PRUEBA)
-        self.assertIsNotNone(account.password)
-        self.assertTrue(account_service.check_auth(account.dni, self.PASSWORD_PRUEBA))
-        self.assertEqual(account.surname, self.SURNAME_PRUEBA)
-        self.assertEqual(account.address, self.ADDRESS_PRUEBA)
-        self.assertEqual(account.phone, self.PHONE_PRUEBA)
-        self.assertEqual(account.dni, self.DNI_PRUEBA)  
-        wallett = self.__get_wallet()
-        wallet_services.save(wallett)
-        self.assertGreaterEqual(wallett.id_wallet, 1)
-        self.assertEqual(wallett.balance, self.BALANCE)
-        self.assertEqual(wallett.id_owner_account, self.ID_OWNER_ACCOUNT)
-        self.assertEqual(wallett.id_wallet_coin, self.ID_WALLET_COIN) 
+    # Test para probar que muestra todas las wallets de un usuario
+    def test_get_all(self):
+        res = self.wall_srvs.get_all()
+        self.assertEqual(res[0], self.wall_1)
+        self.assertEqual(res[1], self.wall_2)
 
+    # Test para probar que encuentra una wallet por id, relacionada a un usuario
+    def test_find_by_id(self):
+        res_1 = self.wall_srvs.find_by_id(self.wall_1.id_wallet)
+        res_2 = self.wall_srvs.find_by_id(4)
+        self.assertEqual(res_1.id_wallet, self.wall_1.id_wallet)
+        self.assertIsNone(res_2)
 
-    
-    def test_account_delete(self):
-        #se encarga de borrar la cuenta
-      account = self.__get_account()
-        
-      account_service.save(account)
+    # Test para probar que encuentra una wallet por nombre de su cripto, relacionada a un usuario
+    def test_find_by_coin_name(self):
+        res_1 = self.wall_srvs.find_by_coin_name(self.coin_1.coin_name)
+        res_2 = self.wall_srvs.find_by_coin_name("Pame")
+        self.assertEqual(res_1.id_wallet, self.wall_1.id_wallet)
+        self.assertIsNone(res_2)
 
-      account_service.delete(account)
-        
-      self.assertIsNone(account_service.find(account))
+    # Test para probar que encuentra una wallet por el simbolo de su cripto, relacionada a un usuario
+    def test_find_by_coin_symbol(self):
+        res_1 = self.wall_srvs.find_by_coin_symbol(self.coin_1.coin_symbol)
+        res_2 = self.wall_srvs.find_by_coin_symbol("bull")
+        self.assertEqual(res_1.id_wallet, self.wall_1.id_wallet)
+        self.assertIsNone(res_2)
 
+    # Test para probar que muestra el balance de una wallet
+    def test_check_balance(self):
+        # Le agrego saldo a una wallet para probarla
+        self.wall_srvs.update(self.wall_2.id_wallet, 500)
 
-    def __get_wallet(self):
-        wallet = Wallet()
-        wallet.id_wallet = self.ID_WALLET
-        wallet.balance = self.BALANCE
-        wallet.id_owner_account = self.ID_OWNER_ACCOUNT   
-        wallet.id_wallet_coin = self.ID_WALLET_COIN
-        return wallet   
-    
-    def __get_account(self):
-        data = Account()
-        data.id_account= self.ID_ACCOUNT
-        data.surname=self.SURNAME_PRUEBA
-        data.address=self.ADDRESS_PRUEBA
-        data.phone=self.PHONE_PRUEBA
-        data.dni=self.DNI_PRUEBA
-        data.birthdate=self.BIRTHDATE_PRUEBA
-        
-        data.username=self.USERNAME_PRUEBA
-        data.email=self.EMAIL_PRUEBA
-        data.password=self.PASSWORD_PRUEBA  
-        data.is_admin=self.IS_ADMIN_PRUEBA
-        
+        res_1 = self.wall_srvs.check_balance(self.wall_2.id_wallet)
+        res_2 = self.wall_srvs.check_balance(self.wall_3.id_wallet)
+        res_3 = self.wall_srvs.check_balance(4)
 
-        return data
+        self.assertTrue(res_1)
+        self.assertFalse(res_2)
+        self.assertIsNone(res_3)
 
-    def __get_coin(self):
-        coin = Coin()
-        coin.id_coin = self.ID_COIN
-        coin.coin_abbreviation = self.COIN_ABBREVATION
-        coin.id_coin_wallet = self.ID_COIN_WALLET
-        return coin   
-    
-if __name__ == "__main__":
+    # Test para retirar balance
+    def test_withdraw(self):
+        # Le agrego saldo a una wallet para probarla
+        self.wall_srvs.update(self.wall_1.id_wallet, 5000)
+        res_1 = self.wall_srvs.withdraw(self.wall_1.id_wallet, 1000)
+        res_2 = self.wall_srvs.withdraw(self.wall_1.id_wallet, -1000)
+        res_3 = self.wall_srvs.withdraw(4, 1000)
+        res_4 = self.wall_srvs.withdraw(self.wall_2.id_wallet, 1000)
+
+        self.assertEqual(res_1.balance, 4000)
+        self.assertEqual(res_2, "Amount cannot be negative")
+        self.assertIsNone(res_3)
+        self.assertEqual(res_4, "Insufficient balance")
+
+    # Test para probar que traiga todas las wallets que tienen balance >0
+    def test_find_by_positive_balance(self):
+        self.wall_srvs.update(self.wall_1.id_wallet, 5000)
+        self.wall_srvs.update(self.wall_2.id_wallet, 5000)
+        res_1 = self.wall_srvs.find_by_positive_balance()
+
+        self.assertEqual(len(res_1), 2)
+        self.assertEqual(res_1[0].id_wallet, self.wall_1.id_wallet)
+        self.assertEqual(res_1[1].id_wallet, self.wall_2.id_wallet)
+
+    # Test para probar que traiga todas las wallets que tienen balance = 0
+    def test_find_by_zero_balance(self):
+        res = self.wall_srvs.find_by_zero_balance()
+
+        self.assertEqual(len(res), 3)
+        self.assertEqual(res[0].id_wallet, self.wall_1.id_wallet)
+        self.assertEqual(res[1].id_wallet, self.wall_2.id_wallet)
+        self.assertEqual(res[2].id_wallet, self.wall_3.id_wallet)
+
+if __name__ == '__main__':
     unittest.main()
