@@ -215,27 +215,27 @@ class SwapTestCase(unittest.TestCase):
 
 
         swaps_wallet1_send = swap_service.filter_by_wallet_send(1)
-        self.assertIsNotNone(swaps_wallet1_send)
+        self.assertNotEqual(swaps_wallet1_send, [])
         self.assertEqual(len(swaps_wallet1_send), 2) # Dos swaps donde la wallet 1 envía coins
         swaps_wallet1_recv = swap_service.filter_by_wallet_recv(1)
-        self.assertIsNotNone(swaps_wallet1_recv)
+        self.assertNotEqual(swaps_wallet1_recv, [])
         self.assertEqual(len(swaps_wallet1_recv), 1) # Un swap donde wallet 1 envía coins
 
         swaps_wallet2_send = swap_service.filter_by_wallet_send(2)
-        self.assertIsNotNone(swaps_wallet2_send)
+        self.assertNotEqual(swaps_wallet2_send, [])
         self.assertEqual(len(swaps_wallet2_send), 2) # Dos swaps donde wallet 2 envía coins
         swaps_wallet2_recv = swap_service.filter_by_wallet_recv(2)
-        self.assertIsNotNone(swaps_wallet2_recv)
+        self.assertNotEqual(swaps_wallet2_recv, [])
         self.assertEqual(len(swaps_wallet2_recv),1) # Un swap donde wallet 2 recibe coins
 
         swaps_wallet3_send = swap_service.filter_by_wallet_send(3)
-        self.assertIsNone(swaps_wallet3_send) # La wallet 3 no tiene swaps en los que haya enviado coins, por lo que debe ser None
+        self.assertEqual(swaps_wallet3_send, []) # La wallet 3 no tiene swaps en los que haya enviado coins, por lo que debe ser None
         swaps_wallet3_recv = swap_service.filter_by_wallet_recv(3)
-        self.assertIsNotNone(swaps_wallet3_recv)
+        self.assertNotEqual(swaps_wallet3_recv, [])
         self.assertEqual(len(swaps_wallet3_recv), 2) # Tiene dos swaps en los que recibe coins.
 
         swaps_wallet4_send = swap_service.filter_by_wallet_send(5) # Una wallet inexistente o bien que no haya tenido ningun swap
-        self.assertIsNone(swaps_wallet4_send)
+        self.assertEqual(swaps_wallet4_send, [])
 
     """ Test que filtra swaps por fecha de operación """
     def test_filter_by_op_date(self):
@@ -252,14 +252,26 @@ class SwapTestCase(unittest.TestCase):
         swap_service.save(swap1)
         swap_service.save(swap2)
 
-        swaps_hoy = swap_service.filter_by_op_date(fecha_hoy) # Debería ser el primero que creamos con la fecha de hoy
+        swaps_all = swap_service.get_all()
+        swaps_hoy = swap_service.filter_by_op_date(swaps_all, fecha_hoy) # Debería ser el primero que creamos con la fecha de hoy
         self.assertIsNotNone(swaps_hoy)
         self.assertEqual(swaps_hoy, [swap1]) 
-        swaps_fecha_uno = swap_service.filter_by_op_date(fecha_uno) # Debería ser el segundo que creamos
+        swaps_fecha_uno = swap_service.filter_by_op_date(swaps_all, fecha_uno) # Debería ser el segundo que creamos
         self.assertIsNotNone(swaps_fecha_uno)
         self.assertEqual(swaps_fecha_uno, [swap2])
-        swaps_fecha_dos = swap_service.filter_by_op_date(fecha_dos) # No existe ningún swap realizado en esta fecha.
+        swaps_fecha_dos = swap_service.filter_by_op_date(swaps_all, fecha_dos) # No existe ningún swap realizado en esta fecha.
         self.assertIsNone(swaps_fecha_dos)
+
+    
+    def test_filter_by_wallet_at_opdate(self):
+        self.__insert_data_db()
+
+        swap1 = Swap(**self.swap_test_data)
+        
+        swap_service.save(swap1)
+        swaps_wallet_1 = swap_service.find_by_op_date_and_wallet(datetime.utcnow(), 1)
+        self.assertNotEqual(swaps_wallet_1, []) # Distinto a una lista vacía
+
 
     """ Método (no test) que inserta los datos de prueba (cuenta, moneda y billetera) a la BD. Para utilizar en los test """
     def __insert_data_db(self):

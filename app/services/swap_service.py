@@ -11,7 +11,8 @@ wallet_service = walletservices()
 class SwapService:
 
     def save(self, swap: Swap):
-        
+        """ Guarda un swap en la BD, con procesos de verificación de wallets y montos. """
+
         # Se verifica que existan las billeteras
         wallet_send = wallet_service.find_by_id(swap.id_wallet_send)
         wallet_recv = wallet_service.find_by_id(swap.id_wallet_recv)
@@ -24,7 +25,7 @@ class SwapService:
 
         # Se verifica que el monto del swap no sea mayor al balance 
         if wallet_send.balance < swap.amount_send: 
-            print(f"El monto {swap.amount_send} envíado es superior al balance {wallet_send.balance}")
+            print(f"El monto {swap.amount_send} {wallet_send.coin.coin_abbreviation} envíado es superior al balance {wallet_send.balance} {wallet_send.coin.coin_abbreviation}")
             return None 
 
         # Si todo está ok, entonces guardamos el swap.
@@ -33,23 +34,41 @@ class SwapService:
         # RECORDATORIO: Restar al balance a la wallet con el amount_send... ¿Pero eso hacerlo aca, o en el servicio wallet?.
         # Requiere un update del balance de esa wallet.
 
-    def get_all(self):
+    def get_all(self) -> list[Swap]:
+        """ Retorna una lista de todos los swaps. """
         return swap_repository.get_all()
     
-    def find_by_id(self, id_swap: int):
+    
+    def find_by_id(self, id_swap: int) -> Swap:
+        """ Busca un swap por su id. """
         return swap_repository.find_by_id(id_swap)
     
-    def filter_by_wallet_send(self, id_wallet: int):
+
+    def filter_by_wallet_send(self, id_wallet: int) -> list[Swap]:
+        """ Filtra por una wallet en particular, por su id, que haya enviado swaps. """
         return swap_repository.filter_by_wallet_send(id_wallet)
     
-    def filter_by_wallet_recv(self, id_wallet: int):
+
+    def filter_by_wallet_recv(self, id_wallet: int) -> list[Swap]:
+        """ Filtra por una wallet que haya recibido swaps. """
         return swap_repository.filter_by_wallet_recv(id_wallet)
     
-    def filter_by_op_date(self, op_date: datetime):
-        all_swaps = self.get_all() # nos traemos todos los swaps de la BD
+
+    def filter_by_wallet(self, id_wallet: int) -> list[Swap]:
+        """ Filtra todos los swaps (send y recv) de un wallet en particular. """
+        l_swaps_send = self.filter_by_wallet_send(id_wallet)
+        l_swaps_recv = self.filter_by_wallet_recv(id_wallet)
+
+        l_swaps = l_swaps_send + l_swaps_recv
+        return l_swaps
+
+
+    def filter_by_op_date(self, l_swaps: list[Swap], op_date: datetime) -> list[Swap]:
+        """ Filtra todos los swaps por fecha de operación.
+        Recibe una lista de Swaps, y filtra por fecha de esa lista. """
         date_swaps = []
         # Filtramos por fecha de operacion
-        for swap in all_swaps:
+        for swap in l_swaps:
             day = swap.operation_date.day
             month = swap.operation_date.month
             year = swap.operation_date.year
@@ -61,7 +80,9 @@ class SwapService:
         else:
             return None
         
-    # Busca por fecha de operación y billetera en particular
-    def find_by_op_date_and_wallet(self, operation_date: datetime, id_wallet: int):
-        swaps_by_opdate = self.find_by_op_date(operation_date)
-        pass
+    
+    def find_by_op_date_and_wallet(self, op_date: datetime, id_wallet: int):
+        """ Filtra swaps de un wallet en una fecha en particular. """
+        swaps_wallet = self.filter_by_wallet(id_wallet) # Filtramos por wallet id
+        swaps_wallet_date = self.filter_by_op_date(swaps_wallet, op_date) # De la anterior, filtramos por fecha.
+        return swaps_wallet_date
