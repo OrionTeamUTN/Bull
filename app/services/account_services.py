@@ -1,36 +1,69 @@
 from app.models import Account
-from app.repositories.account_repository import Accounrepository
+from app.repositories.account_repository import AccounRepository
 from app.services.security import SecurityManager, WerkzeugSecurity
 
-repository = Accounrepository()
-class accountservice:
+
+class AccountService:
     
     #Clase encargada de crear el CRUD. 
     
     def __init__(self) -> None:
         self.__security = SecurityManager(WerkzeugSecurity())
+        self.repository = AccounRepository()
 
-    def save(self, user: Account) -> Account:
-        user.password = self.__security.generate_password(user.password)
-        return repository.save(user)
+    def save(self, args: dict):
+        account = Account()
+        for key, value in args.items():
+            setattr(account, key, value) if hasattr (account, key) else print("Atributo desconocido") 
+        account.password = self.__security.generate_password(args['password'])
+        return self.repository.save(account)
     
 
-    def update(self, user: Account, id: int) -> Account:
-        return repository.update(user, id)
+    def update(self, account: dict, id: int) -> Account:
+        entity = self.find_by_id(id)
+        if isinstance(entity, Account):
+            for key, value in account.items():
+                setattr(entity, key, value)
+            entity.password = self.__security.generate_password(account['password'])
+        else:
+            return "No existe la cuenta"
+        
+        return self.repository.update(entity, id)
     
-    def delete(self, user: Account) -> None:
-        repository.delete(user)
+    def delete(self, id: int) -> str:
+        try:
+            res = self.find_by_id(id)
+            if res is not None:
+                self.repository.delete(res)
+                return "Deleted"
+            else:
+                return "Account not found - 404"
+        except:
+            return "Error to try delete"
     
 
-    def find(self, id: int) -> Account:
-        return repository.find(id)
+    def find_by_id(self, id: int) -> Account:
+        if id is None or id == 0:
+            return None
+        res = self.repository.find_by_id(id)
+        if res != None:
+            return res
+        else:
+              return "Account not found - 404"
     
     def find_by_username(self, username: str):
-        return repository.find_by_username(username)
+        res = self.repository.find_by_username(username)
+        if res != None:
+            return res
+        else:
+            return "Account not found - 404"
     
     def find_by_dni(self, dni: int):
-        return repository.find_by_dni(dni)
-    
+        res = self.repository.find_by_dni(dni)
+        if res != None:
+            return res
+        else:
+            return "No se encontró la cuenta."
     
     def check_auth(self, dni, password) -> bool:
         user = self.find_by_dni(dni)
@@ -41,5 +74,13 @@ class accountservice:
     
     
     def get_other_account_info (self, otra_cuenta_dni:int, admin_dni:int):
-        return repository.get_other_account_info(otra_cuenta_dni, admin_dni)
-    
+        #metodo encargado de verificar si el usuario que pide la cuenta es admin
+        #para poder utilizar este metodo el admin debe ingresar su dni tambien, para verificar que es admin 
+        admin_account = self.find_by_dni(admin_dni)
+        if admin_account and admin_account.is_admin == True :
+            #si es admin, traera la informacion de la cuenta que el admin desee conocer, ingresando el dni de la misma
+            otra_cuenta = self.find_by_dni(otra_cuenta_dni)
+            return otra_cuenta
+        else:
+            return("Acción no permitida para cuentas no administrativas.")
+        
