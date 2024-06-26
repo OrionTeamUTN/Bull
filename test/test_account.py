@@ -11,16 +11,16 @@ class AccountTestCase(base_t):
     # Test para la función que guarda los datos para grabarlos en la DB
     def test_save(self):
         
-        res_1 = self.acc_serv.save(self.account_2_data)
+        res_1 = self.acc_serv.save(self.fake_account)
         # Función para recorrer la instancia por cada uno de sus atributos
         # para poder compararlos
-        for key in self.account_1_data.keys():
+        for key in self.fake_account.keys():
             # No comparo pass porque uno esta plano y el guardado lo devuelve hasheado
             if key != 'password':
-                self.assertEqual(self.account_2_data[key], getattr(res_1, key))
+                self.assertEqual(self.fake_account[key], getattr(res_1, key))
             else:
             # comparamos la pass de prueba contra la que esta haseada en la DB
-                self.assertTrue(self.security.check_password(res_1.password, self.account_2_data[key]))
+                self.assertTrue(self.security.check_password(res_1.password, self.fake_account[key]))
  
     # Test para la función de búsqueda de todas las cuentas
     def test_find_by_id(self):
