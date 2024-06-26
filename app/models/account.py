@@ -4,14 +4,14 @@ from app import db
 class Account( db.Model ):
     __tablename__ = 'accounts'
     id_account = db.Column('id_account',db.Integer, primary_key=True, autoincrement= True)
-    username = db.Column('username', db.String(45), nullable=False)
+    username = db.Column('username', db.String(45), unique=True, nullable=False) 
     password = db.Column('password', db.String, nullable=False)
-    email = db.Column('email', db.String(100), nullable=False)
+    email = db.Column('email', db.String(100), unique=True, nullable=False) 
     first_name =  db.Column('first_name', db.String(45), nullable=False)
     last_name =  db.Column('last_name', db.String(45), nullable=False)
-    phone = db.Column('phone', db.String(45), nullable=False)
+    phone = db.Column('phone', db.String(45), unique=True, nullable=False)
     address = db.Column ('address', db.String(45), nullable=False)
-    dni = db.Column ('dni', db.Integer(), nullable=False)
+    dni = db.Column ('dni', db.Integer(), unique=True, nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
     is_admin = db.Column('is_admin', db.Boolean, nullable=False, default = False)
     # Relación one-to-many: https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-many

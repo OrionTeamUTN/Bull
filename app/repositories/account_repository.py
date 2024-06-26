@@ -11,7 +11,7 @@ class AccounRepository:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            print("Rollback en repository")
+            print("Rollback en repository 1")
         return account
         
     
@@ -21,7 +21,7 @@ class AccounRepository:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            print("Rollback en repository")
+            print("Rollback en repository 2")
         
         
     def find_by_id(self, id: int) -> Account :
@@ -49,6 +49,7 @@ class AccounRepository:
             db.session.add(account)
             db.session.commit()
         except IntegrityError:
+            print("Rollback en update")
             db.session.rollback()
         return account
         

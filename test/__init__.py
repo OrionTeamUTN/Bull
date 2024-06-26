@@ -31,7 +31,7 @@ class BaseTestClass(unittest.TestCase):
         "email": 'guest@example.com',
         "first_name": 'Jose',
         "last_name": 'Perez',
-        "phone": '2615777777',
+        "phone": '2615777757',
         "address": 'Fake St. 123',
         "dni": 87654321,
         "birthdate": date,
@@ -41,7 +41,7 @@ class BaseTestClass(unittest.TestCase):
         self.fake_account = {
         "username": 'user_guest_2',
         "password": '3w4e5r',
-        "email": 'admin@example.com',
+        "email": 'no_admin@example.com',
         "first_name": 'Raul',
         "last_name": 'Perez',
         "phone": '2615555555',
