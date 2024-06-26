@@ -14,3 +14,6 @@ class Wallet(db.Model):
     # many wallets - one coin
     id_wallet_coin = db.Column('id_coin', db.ForeignKey('coins.id_coin'), nullable=False)
     coin = db.relationship('Coin', back_populates='wallet')
+
+    swap_send = db.relationship('Swap', back_populates='wallet_send', uselist=True, primaryjoin="Wallet.id_wallet == Swap.id_wallet_send")
+    swap_recv = db.relationship('Swap', back_populates='wallet_recv', uselist=True, primaryjoin="Wallet.id_wallet == Swap.id_wallet_recv") 
