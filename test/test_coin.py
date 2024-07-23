@@ -10,7 +10,6 @@ class CointTestCase(base_t):
     def compare_two_true(self, coin_1: dict, coin_2: Coin):
         for key in coin_1.keys():
             self.assertEqual(coin_1[key], getattr(coin_2, key))
-            #print(coin_1[key], getattr(coin_2, key))
 
     # Realiza las mismas funciones de la anterior pero esta vez compara que dos
     # elementos no sean iguales
@@ -20,10 +19,10 @@ class CointTestCase(base_t):
         
     coin_serv = CoinServices()
 
-    # args(id_coin, coin_name, coin_symbol, is_active, relationship(wallet))
+    # Test para probar función save
     def test_save(self):
-        coin_1 = self.coin_serv.save(self.coin_data_1, 1)
-        coin_2 = self.coin_serv.save(self.coin_data_2, 2)
+        coin_1 = self.coin_serv.save(self.coin_data_1, self.acc_1.id_account)
+        coin_2 = self.coin_serv.save(self.coin_data_2, self.acc_2.id_account)
 
         self.compare_two_true(self.coin_data_1, coin_1)
         self.compare_two_false(self.coin_data_2, coin_1)
@@ -31,8 +30,8 @@ class CointTestCase(base_t):
 
     # Test para probar función update
     def test_update(self):
-        coin_1 = self.coin_serv.update(self.coin_1.id_coin, 1)
-        coin_2 = self.coin_serv.update(self.coin_2.id_coin, 2)
+        coin_1 = self.coin_serv.update(self.coin_1.id_coin, self.acc_1.id_account)
+        coin_2 = self.coin_serv.update(self.coin_2.id_coin, self.acc_2.id_account)
 
         self.assertNotEqual(self.coin_data_1['is_active'], coin_1.is_active)
         self.assertEqual(coin_2, "No tiene permiso para realizar esta acción")
