@@ -9,10 +9,10 @@ class CoinServices:
         self.repository = CoinRepository()
         self.acc_srvc = AccountService()
 
-    # Sólo puede agregar monedas un usuario admin
+    # Sólo puede agregar monedas un usuario SUadmin
     def save(self, args: dict, admin_id: int) -> Coin:
         acc_srv = self.acc_srvc.find_by_id(admin_id)
-        if isinstance(acc_srv, Account) and acc_srv.is_admin == True:
+        if isinstance(acc_srv, Account) and acc_srv.id_role == 1:
             coin = Coin()
             for key, value in args.items():
                 setattr(coin, key, value) if hasattr (coin, key) else print("Atributo desconocido")
@@ -22,10 +22,10 @@ class CoinServices:
         else:
             return ("No tiene permiso para realizar esta acción")
 
-    # Sólo puede eliminar un usuario admin
+    # Sólo puede eliminar un usuario SUadmin
     def delete(self, coin_id: int, admin_id: int) -> None:
         acc_srv = self.acc_srvc.find_by_id(admin_id)
-        if isinstance(acc_srv, Account) and acc_srv.is_admin == True:
+        if isinstance(acc_srv, Account) and acc_srv.id_role == 1:
             coin = self.repository.find_by_id(coin_id)
             if isinstance(coin, Coin):
                 return self.repository.delete(coin)        
@@ -34,10 +34,10 @@ class CoinServices:
         
     # La función update sólo actualiza si la moneda está o no activa,
     # el resto no tiene sentido actualizarlo.
-    # Sólo puede activarla o desactivarla un usuario admin
+    # Sólo puede activarla o desactivarla un usuario SUadmin
     def update(self, coin_id: int, admin_id: int) -> Coin:
         acc_srv = self.acc_srvc.find_by_id(admin_id)
-        if acc_srv.is_admin == True:
+        if acc_srv.id_role == 1:
             coin = self.repository.find_by_id(coin_id)
             if isinstance(coin, Coin):
                 if coin.is_active == False:

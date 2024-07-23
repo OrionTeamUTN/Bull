@@ -11,13 +11,13 @@ class AccountTestCase(base_t):
     # Test para la función que guarda los datos para grabarlos en la DB
     def test_save(self):
         
-        res_1 = self.acc_serv.save(self.fake_account)
+        res_1 = self.acc_serv.save(self.fake_account_2)
         # Función para recorrer la instancia por cada uno de sus atributos
         # para poder compararlos
-        for key in self.fake_account.keys():
+        for key in self.fake_account_2.keys():
             # No comparo pass porque uno esta plano y el guardado lo devuelve hasheado
             if key != 'password':
-                self.assertEqual(self.fake_account[key], getattr(res_1, key))
+                self.assertEqual(self.fake_account_2[key], getattr(res_1, key))
             else:
             # comparamos la pass de prueba contra la que esta haseada en la DB
                 self.assertTrue(self.security.check_password(res_1.password, self.fake_account[key]))
@@ -46,7 +46,7 @@ class AccountTestCase(base_t):
      
     # Test para la función de busqueda por username
     def test_find_by_username(self):
-        
+
         res_1 = self.acc_serv.find_by_username(self.account_1_data["username"])
         res_2 = self.acc_serv.find_by_username(self.account_2_data["username"])
 
@@ -59,9 +59,11 @@ class AccountTestCase(base_t):
         res_1 = self.acc_serv.get_other_account_info(self.account_2_data["dni"], self.account_1_data["dni"])
         res_2 = self.acc_serv.get_other_account_info(self.account_1_data["dni"], self.account_2_data["dni"])
         res_3 = self.acc_serv.get_other_account_info(55555555, self.account_1_data["dni"])
+        res_4 = self.acc_serv.get_other_account_info(self.account_1_data["dni"], self.account_3_data["dni"])
 
         self.assertEqual(self.acc_2, res_1)
-        self.assertEqual("Acción no permitida para cuentas no administrativas.", res_2)
+        self.assertEqual(self.acc_2, res_2)
+        self.assertEqual("Acción no permitida para cuentas no administrativas.", res_4)
         self.assertEqual("No se encontró la cuenta.", res_3)
 
     # Test para la función de verificar la contraseña

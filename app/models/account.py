@@ -13,16 +13,10 @@ class Account( db.Model ):
     address = db.Column ('address', db.String(45), nullable=False)
     dni = db.Column ('dni', db.Integer(), unique=True, nullable=False)
     birthdate = db.Column('birthdate', db.DateTime, nullable=False)
-    is_admin = db.Column('is_admin', db.Boolean, nullable=False, default = False)
     # Relación one-to-many: https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-many
     # One account - many wallets
     wallets = db.relationship("Wallet", back_populates="accounts", cascade="all, delete-orphan")
-    
-
-    """ def add_role(self, wallet):
-        if wallet not in self.wallets:
-            self.wallets.append(wallet)
-    
-    def remove_role(self, wallet):
-        if wallet in self.wallets:
-            self.wallets.remove(wallet) """
+    # Relación many-to-one: https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-many
+    # many accounts - one role
+    id_role = db.Column('id_role', db.ForeignKey('roles.id_role'), nullable=False)
+    roles = db.relationship('Role', back_populates='accounts_role')

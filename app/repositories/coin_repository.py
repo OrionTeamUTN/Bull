@@ -8,25 +8,25 @@ class CoinRepository:
         try:
             db.session.add(coin) 
             db.session.commit()
+            return coin
         except IntegrityError:
             db.session.rollback()
-        return coin
     
     def update(self, coin: Coin) -> Coin:
         try:
             db.session.add(coin) 
             db.session.commit()
+            return coin
         except IntegrityError:
             db.session.rollback()
-        return coin
     
     def delete(self, coin: Coin) -> None:   
         try:
             db.session.delete(coin) 
             db.session.commit()
+            return ("Success")
         except IntegrityError:
             db.session.rollback()
-        return ("Success")
     
     def get_all(self) -> list[Coin]:
         return db.session.query(Coin).all()

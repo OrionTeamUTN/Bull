@@ -9,10 +9,10 @@ class AccounRepository:
         try:
             db.session.add(account) 
             db.session.commit()
+            return account
         except IntegrityError:
             db.session.rollback()
             print("Rollback en repository 1")
-        return account
         
     
     def delete(self, user: Account) -> None:
@@ -44,13 +44,14 @@ class AccounRepository:
         except NoResultFound:
             return None
         
-    def update(self, account: Account, id: int) -> Account:
+    def update(self, account: Account) -> Account:
         try:
             db.session.add(account)
             db.session.commit()
+            return account
         except IntegrityError:
             print("Rollback en update")
             db.session.rollback()
-        return account
+            return None
         
         

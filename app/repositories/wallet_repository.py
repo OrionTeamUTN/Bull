@@ -8,19 +8,19 @@ class WalletRepository:
         try:
             db.session.add(wallet) 
             db.session.commit()
+            return wallet
         except IntegrityError:
             db.session.rollback()
             print("Rollback en repository")
-        return wallet
     
     def update(self, wallet: Wallet) -> Wallet:
         try:
             db.session.add(wallet) 
             db.session.commit()
+            return wallet
         except IntegrityError:
             db.session.rollback()
             print("Rollback en repository")
-        return wallet
     
     def delete(self, wallet: Wallet) -> None:
         try:
