@@ -15,10 +15,10 @@ class AccountService:
         account = Account()
         for key, value in args.items():
             setattr(account, key, value) if hasattr (account, key) else print("Atributo desconocido")
-        #account.email.lower()
-        #account.username.lower()
-        #account.first_name.capitalize()
-        #account.last_name.capitalize()
+        account.email = account.email.lower()
+        account.username = account.username.lower()
+        account.first_name = account.first_name.capitalize()
+        account.last_name = account.last_name.capitalize()
         account.password = self.__security.generate_password(args['password'])
         return self.repository.save(account)
     
