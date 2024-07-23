@@ -6,28 +6,38 @@ from app.models import Swap
 from app.services.get_prices import CoinPrices
 from datetime import datetime
 
-swap_repository = SwapRepository()
-wallet_service = WalletServices()
-coin_service = CoinServices()
-coin_prices = CoinPrices()
 
 class SwapService:
 
+    def __init__(self):
+        self.swap_repository = SwapRepository()
+        self.wallet_service = WalletServices()
+        self.coin_service = CoinServices()
+        self.coin_prices = CoinPrices()
+
     def make_swap(self, coin1_symbol: str, coin2_symbol: str, amount_send: float):
 
+        coin1 = self.coin_service.find_by_symbol(coin1_symbol)
+        coin2 = self.coin_service.find_by_symbol(coin2_symbol)
         # Verificamos que existan las monedas
-        if coin_service.find_by_symbol(coin1_symbol) == "Coin not found - 404":
-            print("No existe la Coin de Send")
+        if coin1 == "Coin not found - 404":
+            print("No existe la Coin Send")
             return None 
-        if coin_service.find_by_symbol(coin2_symbol) == "Coin not found - 404":
-            print("No existe la Coin de Recv")
+        if coin2 == "Coin not found - 404":
+            print("No existe la Coin Recv")
             return None
 
-        # Verificar que esten activas??? Probablemente sí
+        # Verificamos que las monedas estén activas
+        if not coin1.is_active:
+            print("Coin Send no está activa")
+            return None
+        if not coin2.is_active:
+            print("Coin Recv no está activa")
+            return None        
 
         # Convertimos el monto enviado al monto que se recibe (mediante USDT)
-        amount_send_USDT = coin_prices.crypto_to_stable(coin1_symbol, amount_send, 'USDT') # monto enviado en USDT
-        amount_recv = coin_prices.stable_to_crypto(coin2_symbol, 'USDT', amount_send_USDT) # monto recibido
+        amount_send_USDT = self.coin_prices.crypto_to_stable(coin1_symbol, amount_send, 'USDT') # monto enviado en USDT
+        amount_recv = self.coin_prices.stable_to_crypto(coin2_symbol, 'USDT', amount_send_USDT) # monto recibido
 
         return amount_recv
 
@@ -36,8 +46,8 @@ class SwapService:
         """ Guarda un swap en la BD, con procesos de verificación de wallets y montos. """
 
         # Se verifica que existan las billeteras
-        wallet_send = wallet_service.find_by_id(swap.id_wallet_send)
-        wallet_recv = wallet_service.find_by_id(swap.id_wallet_recv)
+        wallet_send = self.wallet_service.find_by_id(swap.id_wallet_send)
+        wallet_recv = self.wallet_service.find_by_id(swap.id_wallet_recv)
         if wallet_send == None:
             print(f"No existe la WALLET SEND con id={swap.id_wallet_send}")
             return None
@@ -47,7 +57,7 @@ class SwapService:
 
         # Se verifica que el monto del swap no sea mayor al balance 
         # Consumimos el monto del balance de la wallet
-        w = wallet_service.withdraw(swap.id_wallet_send, amount=swap.amount_send)
+        w = self.wallet_service.withdraw(swap.id_wallet_send, amount=swap.amount_send)
         if isinstance(w, str): # Si devuelve un mensaje str, entonces el balance es insuficiente
             print(w)
             return None 
@@ -55,28 +65,32 @@ class SwapService:
         # Si todo estuvo ok, calculamos el monto a recibir:
         swap.amount_recv = self.make_swap(wallet_send.coin.coin_symbol, wallet_recv.coin.coin_symbol, swap.amount_send)
 
+        # Acreditamos el nuevo balance a la billetera que recibe.
+        new_balance = wallet_recv.balance + swap.amount_recv 
+        self.wallet_service.update(wallet_recv.id_wallet, new_balance)
+
         # Guardamos el swap.
-        swap_repository.save(swap)
+        self.swap_repository.save(swap)
         
 
     def get_all(self) -> list[Swap]:
         """ Retorna una lista de todos los swaps. """
-        return swap_repository.get_all()
+        return self.swap_repository.get_all()
     
     
     def find_by_id(self, id_swap: int) -> Swap:
         """ Busca un swap por su id. """
-        return swap_repository.find_by_id(id_swap)
+        return self.swap_repository.find_by_id(id_swap)
     
 
     def filter_by_wallet_send(self, id_wallet: int) -> list[Swap]:
         """ Filtra por una wallet en particular, por su id, que haya enviado swaps. """
-        return swap_repository.filter_by_wallet_send(id_wallet)
+        return self.swap_repository.filter_by_wallet_send(id_wallet)
     
 
     def filter_by_wallet_recv(self, id_wallet: int) -> list[Swap]:
         """ Filtra por una wallet que haya recibido swaps. """
-        return swap_repository.filter_by_wallet_recv(id_wallet)
+        return self.swap_repository.filter_by_wallet_recv(id_wallet)
     
 
     def filter_by_wallet(self, id_wallet: int) -> list[Swap]:

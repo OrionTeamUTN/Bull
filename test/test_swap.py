@@ -62,7 +62,7 @@ class SwapTestCase(unittest.TestCase):
 
         # Datos de swap
         self.swap_test_data ={
-            "operation_date": datetime.utcnow(),
+            "operation_date": datetime.today(),
             "amount_send": 100,
             "id_wallet_send": 1, # a wallet1
             "id_wallet_recv": 2  # a wallet2
@@ -244,7 +244,7 @@ class SwapTestCase(unittest.TestCase):
     """ Test que filtra swaps por fecha de operación """
     def __test_filter_by_op_date(self):
         self.__insert_data_db()
-        fecha_hoy = datetime.utcnow()
+        fecha_hoy = datetime.today()
         fecha_uno = datetime(2024, 6, 15)
         fecha_dos = datetime(2024, 5, 17)
 
@@ -273,7 +273,7 @@ class SwapTestCase(unittest.TestCase):
         swap1 = Swap(**self.swap_test_data)
         
         swap_service.save(swap1)
-        swaps_wallet_1 = swap_service.find_by_op_date_and_wallet(datetime.utcnow(), 1)
+        swaps_wallet_1 = swap_service.find_by_op_date_and_wallet(datetime.today(), 1)
         self.assertNotEqual(swaps_wallet_1, []) # Distinto a una lista vacía
 
 
