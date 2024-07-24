@@ -56,7 +56,7 @@ class CointTestCase(base_t):
     def test_find_by_name(self):
         res_1 = self.coin_serv.find_by_name(self.coin_data_1['coin_name'])
         res_2 = self.coin_serv.find_by_name(self.coin_data_2['coin_name'])
-        res_3 = self.coin_serv.find_by_name('Ethereum')
+        res_3 = self.coin_serv.find_by_name('Pepe')
 
         self.assertEqual(res_1.coin_name, self.coin_data_1['coin_name'])
         self.assertEqual(res_2.coin_name, self.coin_data_2['coin_name'])
@@ -66,7 +66,7 @@ class CointTestCase(base_t):
     def test_find_by_symbol(self):
         res_1 = self.coin_serv.find_by_symbol(self.coin_data_1['coin_symbol'])
         res_2 = self.coin_serv.find_by_symbol(self.coin_data_2['coin_symbol'])
-        res_3 = self.coin_serv.find_by_symbol('Eth')
+        res_3 = self.coin_serv.find_by_symbol('P$p%')
 
         self.assertEqual(res_1.coin_symbol, self.coin_data_1['coin_symbol'])
         self.assertEqual(res_2.coin_symbol, self.coin_data_2['coin_symbol'])

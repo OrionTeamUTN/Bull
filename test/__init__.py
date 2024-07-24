@@ -5,10 +5,13 @@ from app.services.account_services import AccountService
 from app.services.coin_services import CoinServices
 from app.services.wallet_services import WalletServices
 from app.services.role_services import RoleServices
+from app.services.swap_service import SwapService
+
+from app.models import Swap
 
 
 class BaseTestClass(unittest.TestCase):
-   
+
     def setUp(self):
 
         date = datetime(2000, 1, 1)
@@ -92,6 +95,16 @@ class BaseTestClass(unittest.TestCase):
              "is_active": False
         }
 
+        self.coin_data_4 = {
+             "coin_name": "Ethereum",
+             "coin_symbol": "ETH"
+        }
+
+        self.coin_data_5 = {
+             "coin_name": "Dogecoin",
+             "coin_symbol": "DOGE"
+        }
+
         self.role_data_1 = {
              "role_name": "Suadmin",
         }
@@ -107,6 +120,24 @@ class BaseTestClass(unittest.TestCase):
         }
         self.role_data_5 = {
              "role_name": "other",
+        }
+
+        # Datos de swap
+        
+        # Swap 1 que envía desde wallet(id=4) a wallet(id=5)
+        self.swap_data_1 = {
+            "operation_date": datetime.today(),
+            "amount_send": 100,
+            "id_wallet_send": 4,
+            "id_wallet_recv": 5 
+        }
+
+        # Swap 1 que envía desde wallet(id=5) a wallet(id=4)
+        self.swap_data_2 = {
+            "operation_date": datetime(2024, 5, 17),
+            "amount_send": 150,
+            "id_wallet_send": 5,
+            "id_wallet_recv": 4 
         }
 
         # Define test variables and initialize app
@@ -132,19 +163,32 @@ class BaseTestClass(unittest.TestCase):
         self.coin_1 = self.create_coin(self.coin_data_1, self.acc_1.id_account)
         self.coin_2 = self.create_coin(self.coin_data_2, self.acc_1.id_account)
         self.coin_3 = self.create_coin(self.coin_data_3, self.acc_1.id_account)
-        # Creamos wallets para pruebas
+        self.coin_4 = self.create_coin(self.coin_data_4, self.acc_1.id_account)
+        self.coin_5 = self.create_coin(self.coin_data_5, self.acc_1.id_account)
+        # Creamos wallets para pruebas (wall 2, 4 y 5 tienen monedas activas)
         self.wall_1 = self.create_wallet(self.acc_1.id_account, self.coin_1.id_coin)
         self.wall_2 = self.create_wallet(self.acc_2.id_account, self.coin_2.id_coin)
         self.wall_3 = self.create_wallet(self.acc_2.id_account, self.coin_3.id_coin)
-        
+        self.wall_4 = self.create_wallet(self.acc_1.id_account, self.coin_4.id_coin)
+        self.wall_5 = self.create_wallet(self.acc_1.id_account, self.coin_5.id_coin)
+
+
+        # Agregamos saldos a las billeteras 4 y 5, para los swaps
+        self.add_balance(self.wall_4.id_wallet, 600)
+        self.add_balance(self.wall_5.id_wallet, 700)
+
+        # Creamos swaps para pruebas
+        self.swap_1 = self.create_swap(self.swap_data_1)
+        self.swap_2 = self.create_swap(self.swap_data_2)
+        #self.swap_3 = self.create_swap(self.swap_data_3) 
+
 
         
 
     def tearDown(self):
         # Elimina todas las bases de datos cuando termina
             db.session.remove()
-            db.drop_all()
-        
+            db.drop_all()      
 
 
     @staticmethod
@@ -165,8 +209,20 @@ class BaseTestClass(unittest.TestCase):
         service = WalletServices()
         return service.save(id_acc, id_coin)
     
+    # Método para actualizar balance a las billeteras
+    @staticmethod
+    def add_balance(id_wallet: int, balance: int):
+         service = WalletServices()
+         return service.update(id_wallet, balance)
+         
+
     @staticmethod
     # args(role_name, account_role(relatinship))
     def create_role(role: dict, id: int):
         service = RoleServices()
         return service.save(role, id)
+    
+    @staticmethod
+    def create_swap(swap: dict):
+          service = SwapService()
+          return service.save(swap)

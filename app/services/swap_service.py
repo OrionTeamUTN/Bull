@@ -42,8 +42,9 @@ class SwapService:
         return amount_recv
 
 
-    def save(self, swap: Swap):
+    def save(self, args: dict):
         """ Guarda un swap en la BD, con procesos de verificación de wallets y montos. """
+        swap = Swap(**args)
 
         # Se verifica que existan las billeteras
         wallet_send = self.wallet_service.find_by_id(swap.id_wallet_send)
@@ -70,7 +71,8 @@ class SwapService:
         self.wallet_service.update(wallet_recv.id_wallet, new_balance)
 
         # Guardamos el swap.
-        self.swap_repository.save(swap)
+        return self.swap_repository.save(swap)
+
         
 
     def get_all(self) -> list[Swap]:
@@ -85,12 +87,14 @@ class SwapService:
 
     def filter_by_wallet_send(self, id_wallet: int) -> list[Swap]:
         """ Filtra por una wallet en particular, por su id, que haya enviado swaps. """
-        return self.swap_repository.filter_by_wallet_send(id_wallet)
+        l_swaps = self.swap_repository.filter_by_wallet_send(id_wallet)
+        return l_swaps if len(l_swaps)>0 else None
     
 
     def filter_by_wallet_recv(self, id_wallet: int) -> list[Swap]:
         """ Filtra por una wallet que haya recibido swaps. """
-        return self.swap_repository.filter_by_wallet_recv(id_wallet)
+        l_swaps = self.swap_repository.filter_by_wallet_recv(id_wallet)
+        return l_swaps if len(l_swaps)>0 else None
     
 
     def filter_by_wallet(self, id_wallet: int) -> list[Swap]:
@@ -99,7 +103,7 @@ class SwapService:
         l_swaps_recv = self.filter_by_wallet_recv(id_wallet)
 
         l_swaps = l_swaps_send + l_swaps_recv
-        return l_swaps
+        return l_swaps if len(l_swaps)>0 else None
 
 
     def filter_by_op_date(self, l_swaps: list[Swap], op_date: datetime) -> list[Swap]:
@@ -114,14 +118,15 @@ class SwapService:
             if day == op_date.day and month == op_date.month and year == op_date.year: # Se comparan dia, mes y año
                 date_swaps.append(swap)
         
-        if len(date_swaps)>0:
-            return date_swaps 
-        else:
-            return None
+        return date_swaps if len(date_swaps)>0 else None
         
     
-    def find_by_op_date_and_wallet(self, op_date: datetime, id_wallet: int):
+    def filter_by_wallet_at_op_date(self, op_date: datetime, id_wallet: int):
         """ Filtra swaps de un wallet en una fecha en particular. """
         swaps_wallet = self.filter_by_wallet(id_wallet) # Filtramos por wallet id
-        swaps_wallet_date = self.filter_by_op_date(swaps_wallet, op_date) # De la anterior, filtramos por fecha.
-        return swaps_wallet_date
+        if swaps_wallet: # Si existen swaps de esa billetera, entonces filtramos por fecha
+            swaps_wallet_at_date = self.filter_by_op_date(swaps_wallet, op_date)
+            res = swaps_wallet_at_date # Puede ser una lista o bien None si es que no encontró swaps en esa fecha
+        else:
+            res = None
+        return res
