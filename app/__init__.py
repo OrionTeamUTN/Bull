@@ -15,9 +15,9 @@ def create_app() -> None:
     f = config.factory(app_context if app_context else 'development')
     app.config.from_object(f)
 
-    ma.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    ma.init_app(app)
     
     from app.resources import home
     app.register_blueprint(home, url_prefix='/api/v1')
