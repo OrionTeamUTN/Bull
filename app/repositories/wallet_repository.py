@@ -55,7 +55,7 @@ class WalletRepository:
         
     def find_by_positive_balance(self) -> list[Wallet]:
         try:
-            return db.session.query(Wallet).filter(Wallet.balance > 0).all()
+            return db.session.query(Wallet).filter(Wallet.balance > 0).order_by(Wallet.id_wallet).all()
         except NoResultFound:
             return None
         

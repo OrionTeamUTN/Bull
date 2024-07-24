@@ -17,6 +17,8 @@ class CoinPrices:
         
         if 'code' in resp.keys()  and resp['code'] == -1121:
             # Si el par no existe o está mal enviado el formato admitido
+            print(resp['msg'])
+            print(coin)
             return resp['msg']
         else:
             # Devuelve el precio actual

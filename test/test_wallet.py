@@ -11,8 +11,8 @@ class WalletTestCase(base_t):
         res_1 = self.wall_srvs.save(self.acc_1.id_account, self.coin_1.id_coin)
         res_2 = self.wall_srvs.save(self.acc_2.id_account, self.coin_2.id_coin)
         # A las siguientes se les pasa datos inexistentes para que fallen
-        res_3 = self.wall_srvs.save(4, self.coin_2.id_coin)
-        res_4 = self.wall_srvs.save(self.acc_2.id_account, 4)
+        res_3 = self.wall_srvs.save(6, self.coin_2.id_coin)
+        res_4 = self.wall_srvs.save(self.acc_2.id_account, 7)
         self.assertEqual(res_1.id_owner_account, self.acc_1.id_account)
         self.assertEqual(res_1.id_wallet_coin, self.coin_1.id_coin)
         self.assertEqual(res_2.id_owner_account, self.acc_2.id_account)
@@ -29,7 +29,7 @@ class WalletTestCase(base_t):
     def test_update(self):
         res_1 = self.wall_srvs.update(self.wall_1.id_wallet, 500)
         res_2 = self.wall_srvs.update(self.wall_1.id_wallet, -500)
-        res_3 = self.wall_srvs.update(4, 500)
+        res_3 = self.wall_srvs.update(7, 500)
         
         self.assertEqual(res_1.balance, 500)
         self.assertEqual(res_2, "Balance cannot be negative")
@@ -44,7 +44,7 @@ class WalletTestCase(base_t):
     # Test para probar que encuentra una wallet por id, relacionada a un usuario
     def test_find_by_id(self):
         res_1 = self.wall_srvs.find_by_id(self.wall_1.id_wallet)
-        res_2 = self.wall_srvs.find_by_id(4)
+        res_2 = self.wall_srvs.find_by_id(7)
         self.assertEqual(res_1.id_wallet, self.wall_1.id_wallet)
         self.assertIsNone(res_2)
 
@@ -69,7 +69,7 @@ class WalletTestCase(base_t):
 
         res_1 = self.wall_srvs.check_balance(self.wall_2.id_wallet)
         res_2 = self.wall_srvs.check_balance(self.wall_3.id_wallet)
-        res_3 = self.wall_srvs.check_balance(4)
+        res_3 = self.wall_srvs.check_balance(7)
 
         self.assertTrue(res_1)
         self.assertFalse(res_2)
@@ -81,7 +81,7 @@ class WalletTestCase(base_t):
         self.wall_srvs.update(self.wall_1.id_wallet, 5000)
         res_1 = self.wall_srvs.withdraw(self.wall_1.id_wallet, 1000)
         res_2 = self.wall_srvs.withdraw(self.wall_1.id_wallet, -1000)
-        res_3 = self.wall_srvs.withdraw(4, 1000)
+        res_3 = self.wall_srvs.withdraw(6, 1000)
         res_4 = self.wall_srvs.withdraw(self.wall_2.id_wallet, 1000)
 
         self.assertEqual(res_1.balance, 4000)
@@ -95,7 +95,7 @@ class WalletTestCase(base_t):
         self.wall_srvs.update(self.wall_2.id_wallet, 5000)
         res_1 = self.wall_srvs.find_by_positive_balance()
 
-        self.assertEqual(len(res_1), 2)
+        self.assertEqual(len(res_1), 4) # Inicialmente se añade balance a la wallet 4 y 5, por ende deben haber 4 billeteras con balance positivo
         self.assertEqual(res_1[0].id_wallet, self.wall_1.id_wallet)
         self.assertEqual(res_1[1].id_wallet, self.wall_2.id_wallet)
 
