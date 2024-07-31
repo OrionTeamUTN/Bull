@@ -1,10 +1,13 @@
 from app import db
 from app.repositories.swap_repository import SwapRepository
+from app.services.format_logs import formatLogs
 from app.services.wallet_services import WalletServices
 from app.services.coin_services import CoinServices
 from app.models import Swap 
 from app.services.get_prices import CoinPrices
 from datetime import datetime
+
+logging = formatLogs('swapLogger')
 
 
 class SwapService:
@@ -21,18 +24,18 @@ class SwapService:
         coin2 = self.coin_service.find_by_symbol(coin2_symbol)
         # Verificamos que existan las monedas
         if coin1 == "Coin not found - 404":
-            print("No existe la Coin Send")
+            logging.warning("No existe la Coin Send")
             return None 
         if coin2 == "Coin not found - 404":
-            print("No existe la Coin Recv")
+            logging.warning("No existe la Coin Recv")
             return None
 
         # Verificamos que las monedas estén activas
         if not coin1.is_active:
-            print("Coin Send no está activa")
+            logging.warning("Coin Send no está activa")
             return None
         if not coin2.is_active:
-            print("Coin Recv no está activa")
+            logging.warning("Coin Recv no está activa")
             return None        
 
         # Convertimos el monto enviado al monto que se recibe (mediante USDT)
@@ -50,16 +53,17 @@ class SwapService:
         wallet_send = self.wallet_service.find_by_id(swap.id_wallet_send)
         wallet_recv = self.wallet_service.find_by_id(swap.id_wallet_recv)
         if wallet_send == None:
-            print(f"No existe la WALLET SEND con id={swap.id_wallet_send}")
+            logging.warning(f"No existe la WALLET SEND con id={swap.id_wallet_send}")
             return None
         if wallet_recv == None:
-            print(f"No existe la WALLET RECV con id={swap.id_wallet_recv}")
+            logging.warning(f"No existe la WALLET RECV con id={swap.id_wallet_recv}")
             return None
 
         # Se verifica que el monto del swap no sea mayor al balance 
         # Consumimos el monto del balance de la wallet
         w = self.wallet_service.withdraw(swap.id_wallet_send, amount=swap.amount_send)
         if isinstance(w, str): # Si devuelve un mensaje str, entonces el balance es insuficiente
+            logging.warning(f"El balance de la wallet SEND es insuficiente para realizar el swap")
             print(w)
             return None 
 
@@ -82,8 +86,13 @@ class SwapService:
     
     def find_by_id(self, id_swap: int) -> Swap:
         """ Busca un swap por su id. """
-        return self.swap_repository.find_by_id(id_swap)
-    
+        res = self.swap_repository.find_by_id(id_swap)
+        if res != None:            
+            logging.info("Wallet found by id")
+            return res
+        else:
+            logging.warning("Wallet not found by id")
+            return None
 
     def filter_by_wallet_send(self, id_wallet: int) -> list[Swap]:
         """ Filtra por una wallet en particular, por su id, que haya enviado swaps. """
