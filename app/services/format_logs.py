@@ -4,7 +4,7 @@ import os
 
 def formatLogs(name):
     #esta ruta debe se debe cambiar de acuerdo a su pc
-    ruta_log = r'C:\Users\HP\Desktop\Proyecto\Bull\app\logs'
+    ruta_log = os.environ.get('LOG_ROUTE') # ruta de carpeta donde guardar los logs
     nombre_log = name + '.log'
     ruta_arch_log = os.path.join(ruta_log, nombre_log)
     my_logger = logging.getLogger(name)# podemos pasarle el nombre que queramos, por convención es recomendable que sea el nombre del módulo

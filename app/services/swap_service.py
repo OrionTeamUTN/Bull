@@ -63,8 +63,7 @@ class SwapService:
         # Consumimos el monto del balance de la wallet
         w = self.wallet_service.withdraw(swap.id_wallet_send, amount=swap.amount_send)
         if isinstance(w, str): # Si devuelve un mensaje str, entonces el balance es insuficiente
-            logging.warning(f"El balance de la wallet SEND es insuficiente para realizar el swap")
-            print(w)
+            logging.warning(w)
             return None 
 
         # Si todo estuvo ok, calculamos el monto a recibir:
