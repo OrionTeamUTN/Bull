@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 from app.schemas.coin_schema import coin_schema, coins_schema
-
 from app.services.coin_services import CoinServices
 
 # instanciar el objeto Blueprint
@@ -22,6 +21,7 @@ pero va adentro '"""
 def save():
     pass
     coin = coin_schema.load(request.json)
+    return{"coin": coin_schema.dump(coin_services.save(coin))}
 
 """ ESTAMOS HACIENDO BASICAMENTE:
     dato = account_services.save(acc)
@@ -29,11 +29,14 @@ def save():
     dato3 = {"account" : dato2 }
     return dato3 """
 
-    return{"coin": coin_schema.dump(coin_services.save(coin))}
+
 
 @coin.route('/delete',method=['DELETE'])
 def delete():
-    coin = 
+    pass
+    coin = coin_schema.load(request.jason)
+    return{"coin": coin_schema.dump(coin_services, delete)}
 
-
-
+@coin.route('/update', method =['UPDATE'])
+def delete():
+    pass
