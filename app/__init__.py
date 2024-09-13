@@ -5,6 +5,14 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from app.config import config
 
+# ACA SE REGISTRAN LAS RUTAS ? (punto 6)
+#from app.resources import account
+#from app.resources import coin
+#from app.resources import wallet
+#from app.resources import role
+#from app.resources import swap
+
+
 db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()

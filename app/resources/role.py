@@ -10,22 +10,22 @@ def save():
     pass
 
 @role.route('/delete',method=['DELETE'])
-def save():
+def delte():
     pass
 
-@role.route('/update',method=['GET'])
-def save():
+@role.route('/update',method=['PUT'])
+def update():
     pass
 
 
 @role.route('/find_by_id',method=['GET'])
-def save():
+def find_by_id():
     pass
 
 @role.route('/find_by_role_name',method=['GET'])
-def save():
+def find_by_role_name():
     pass
 
 @role.route('/get_all_roles',method=['GET'])
-def save():
+def get_all_roles():
     pass

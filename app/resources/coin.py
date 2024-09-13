@@ -38,5 +38,30 @@ def delete():
     return{"coin": coin_schema.dump(coin_services, delete)}
 
 @coin.route('/update', method =['UPDATE'])
-def delete():
+def update():
+    pass
+
+@coin.route('/get_all', method=['GET'])
+def get_all():
+    pass
+
+@coin.route('/find_by_id',method=['GET'])
+def gind_by_id():
+    pass
+
+
+@coin.route('/find_by_name', method = ['GET'])
+def find_by_name():
+    pass
+
+@coin.route('/find_by_symbol', method = ['GET'])
+def find_by_symbol():
+    pass
+
+@coin.route('/get_active_coins',method = ['GET'])
+def get_active_coins():
+    pass
+
+@coin.route('/get_inactive_coins',method = ['GET'])
+def get_inactive_coins():
     pass

@@ -5,7 +5,7 @@ from app.services.account_services import AccountService
 #OJO Aparece "AccountService" (en SINGULAR)
 
 account = Blueprint('account',__name__, url_prefix='api/accounts')
-account_services = AccountServices()
+account_services = AccountService()
 
 
 """si en el 'services dice que lo que espera como argumento es un diccionario ... xej ..  def(.... algo:dict) 
@@ -16,21 +16,26 @@ pero va adentro '"""
 
 @account.route('/save',method=['POST'])
 def save():
-    pass
+    account = account_schema.load(request.json)
+    return{"account": account_schema.dump(account_services.save(account))}
+    
 
 @account.route('/update',method=['PUT'])
 def update():
+    account = account_schema.load(request.json)
+    return{"account": account_schema.dump(account_services.update(account))}  
     pass
 
 @account.route('/delete',method=['DELETE'])
 def delete():
+    account = account_schema.
     pass
 
-@account.route('/find_by_id',method=['GET'])
+@account.route('/find_by_id/<int:id>',method=['GET'])
 def find_by_id():
     pass
 
-@account.route('/find_by_username', method = ['GET'])
+@account.route('/find_by_username/', method = ['GET'])
 def find_by_username(self, username: str):
     pass
 

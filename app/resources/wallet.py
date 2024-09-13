@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from app.schemas.wallet_schema import wallet_schema, wallets_schema
 from app.services.wallet_services import WalletServices
 
-wallet = Blueprint('wallet',__name__, url_prefix='api/wallet')
+wallet = Blueprint('wallet',__name__, url_prefix='api/wallets')
 wallet_services = WalletServices()
 
 
@@ -42,6 +42,17 @@ def check_balance():
     pass
 
 
-# withdraw
-# find_by_positive_balance
-# find_by_zero_balance
+
+@wallet.route('/withdraw', method = ['PUT'])
+def withdraw():
+    pass
+
+
+@wallet.route('/find_by_positive_balance', method = ['GET'])
+def find_by_positive_balance():
+    pass
+
+
+@wallet.route('/find_by_zero_balance', method = ['GET'])
+def find_by_zero_balance():
+    pass
