@@ -7,52 +7,54 @@ wallet = Blueprint('wallet',__name__, url_prefix='api/wallets')
 wallet_services = WalletServices()
 
 
+## A diferencia de todos NO GUARDO UN DICT ?
+@wallet.route('/save/<int:accid>/<int:coinid>',methods=['POST'])
+def save(accid: int, coinid: int):
+    return wallet_schema.dump(wallet_services.save(accid, coinid))
 
-@wallet.route('/save',method=['POST'])
-def save():
-    pass
+@wallet.route('/update/<int:idwallet/<int:balance>>',methods=['PUT'])
+def update(idwallet: int, balance: int):
+    return wallet_schema.dump(wallet_services.update(idwallet,balance))    
 
-@wallet.route('/update',method=['PUT'])
-def update():
-    pass
+@wallet.route('/delete/<int:idwallet>',methods=['DELETE'])
+def delete(idwallet: int):
+    return wallet_schema.dump(wallet_services.delete(idwallet))
 
-@wallet.route('/delete',method=['DELETE'])
-def delete():
-    pass
 
-@wallet.route('/get_all',method=['GET'])
+@wallet.route('/get_all',methods=['GET'])
 def get_all():
-    pass
+    return wallet_schema.dump(wallet_services.get_all())
 
 
-@wallet.route('/find_by_id',method=['GET'])
-def find_by_id():
-    pass
+@wallet.route('/find_by_id/<int:idwallet>',methods=['GET'])
+def find_by_id(idwallet: int):
+    return wallet_schema.dump(wallet_services.find_by_id(idwallet))
 
-@wallet.route('/find_by_coin_name',method=['GET'])
+@wallet.route('/find_by_coin_name/',methods=['GET'])
 def find_by_coin_name():
+    wallet = wallet_schema
     pass
 
-@wallet.route('/find_by_coin_symbol',method=['GET'])
+@wallet.route('/find_by_coin_symbol',methods=['GET'])
 def find_by_coin_symbol():
-    pass
+    wallet = wallet_schema.load(request.json)
+    return wallet_schema.dump(wallet_services.find_by_coin_symbol(wallet['coin_symbol']))
 
-@wallet.route('/check_balance',method=['PUT'])
+@wallet.route('/check_balance',methods=['PUT'])
 def check_balance():
-    pass
+    return
 
 
-
-@wallet.route('/withdraw', method = ['PUT'])
+@wallet.route('/withdraw', methods = ['PUT'])
 def withdraw():
     pass
 
 
-@wallet.route('/find_by_positive_balance', method = ['GET'])
+@wallet.route('/find_by_positive_balance', methods = ['GET'])
 def find_by_positive_balance():
-    pass
+    return wallet_schema.dump(wallet_services.find_by_positive_balance())
 
 
-@wallet.route('/find_by_zero_balance', method = ['GET'])
+@wallet.route('/find_by_zero_balance', methods = ['GET'])
 def find_by_zero_balance():
-    pass
+    return wallet_schema.dump(wallet_services.find_by_zero_balance())
